@@ -1,0 +1,237 @@
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg: #080b0f;
+  --surface: #10151c;
+  --raised: #151b24;
+  --border: #27313d;
+  --border-strong: #344252;
+  --text: #eef3f8;
+  --muted: #a7b3c2;
+  --faint: #728093;
+  --green: #34d399;
+  --green-soft: rgba(52, 211, 153, 0.12);
+  --green-shadow: rgba(52, 211, 153, 0.15);
+  --red: #fb7185;
+  --red-shadow: rgba(251, 113, 133, 0.15);
+  --yellow: #fbbf24;
+  --blue: #60a5fa;
+  --purple: #a78bfa;
+}
+
+html.light {
+  --bg: #f4f5f7;
+  --surface: #ffffff;
+  --raised: #f8fafc;
+  --border: #dbe2ea;
+  --border-strong: #cbd5dc;
+  --text: #111827;
+  --muted: #475569;
+  --faint: #718096;
+  --green: #05603a;
+  --green-soft: rgba(5, 96, 58, 0.08);
+  --green-shadow: rgba(5, 96, 58, 0.14);
+  --red: #b91c1c;
+  --red-shadow: rgba(185, 28, 28, 0.12);
+  --yellow: #b45309;
+  --blue: #1d4ed8;
+  --purple: #7c3aed;
+}
+
+html.dark {
+  --bg: #080b0f;
+  --surface: #10151c;
+  --raised: #151b24;
+  --border: #27313d;
+  --border-strong: #344252;
+  --text: #eef3f8;
+  --muted: #a7b3c2;
+  --faint: #728093;
+  --green: #34d399;
+  --green-soft: rgba(52, 211, 153, 0.12);
+  --green-shadow: rgba(52, 211, 153, 0.15);
+  --red: #fb7185;
+  --red-shadow: rgba(251, 113, 133, 0.15);
+  --yellow: #fbbf24;
+  --blue: #60a5fa;
+  --purple: #a78bfa;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: Inter, "Space Grotesk", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+  -moz-tab-size: 4;
+  tab-size: 4;
+  font-feature-settings: normal;
+  font-variation-settings: normal;
+}
+
+body {
+  margin: 0;
+  font-family: inherit;
+  line-height: inherit;
+  background: var(--bg);
+  color: var(--text);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+#root {
+  min-height: 100vh;
+  background: var(--bg);
+  transition: background-color 0.3s ease;
+}
+
+.dr-root,
+.sr-root,
+.sp-root {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, "Space Grotesk", ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+  padding: 2rem 1rem;
+}
+
+.dr-root *,
+.sr-root *,
+.sp-root * {
+  box-sizing: border-box;
+}
+
+.dr-main,
+.sr-page,
+.sp-layout {
+  width: min(1180px, 100%);
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 1.5rem 0 4rem;
+  min-width: 0;
+}
+
+.dr-panel,
+.dr-stat-grid,
+.dr-nav,
+.dr-hero,
+.sr-table,
+.sp-search-panel,
+.sr-modal {
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.page-panel {
+  padding: 1.25rem;
+}
+
+.panel-wide,
+.dr-panel-wide {
+  grid-column: 1 / -1;
+}
+
+.grid-2,
+.dr-two-column {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.stats-grid,
+.dr-stat-grid {
+  display: grid;
+  gap: 1px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  background: var(--border);
+}
+
+.stat-card,
+.dr-stat-card {
+  padding: 1rem 1.15rem;
+  background: var(--surface);
+}
+
+.section-label,
+.eyebrow,
+.dr-eyebrow,
+.sp-eyebrow {
+  color: var(--faint);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.btn,
+.link-button,
+.sr-icon-btn,
+.dr-back-link {
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.btn-primary {
+  border-radius: 12px;
+  background: var(--green);
+  color: #fff;
+  box-shadow: 0 12px 24px rgba(52, 211, 153, 0.14);
+  padding: 0.95rem 1.15rem;
+}
+
+.btn-primary:hover {
+  background: rgba(52, 211, 153, 0.9);
+}
+
+.btn-ghost {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  padding: 0.95rem 1.15rem;
+}
+
+.status-pill,
+.tag,
+.chip,
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border-radius: 999px;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.status-pill,
+.tag,
+.chip {
+  border: 1px solid rgba(77, 255, 145, 0.24);
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+.status-pill span,
+.tag span,
+.chip span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+}
