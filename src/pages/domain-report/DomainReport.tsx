@@ -24,7 +24,6 @@ import type {
 import {
   emptyStats,
   getVcardValue,
-  scannerUrl,
   type ReportTab,
 } from "./utils/reportUtils";
 import "./DomainReport.css";
@@ -54,7 +53,7 @@ export default function DomainReport() {
       setResponse(null);
 
       const result = await api.get<ScannerResponse>(
-        `${scannerUrl}/scan/domain/${encodeURIComponent(domain)}`,
+        `/scan/domain/${encodeURIComponent(domain)}`,
         { signal: controller.signal },
       );
 
@@ -82,7 +81,7 @@ export default function DomainReport() {
 
     setIsRescanning(true);
     try {
-      await api.post(`/scanner/${domain}`);
+      await api.post(`/scan/domain/${encodeURIComponent(domain)}`);
       toast.success("Rescan request sent — please check again later.");
     } catch (requestError) {
       toast.error(

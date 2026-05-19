@@ -904,6 +904,7 @@
 
 /* ── Panel ─────────────────────────────────────────────────── */
 .dr-panel {
+    margin-top: 1rem;
     min-width: 0;
     padding: 1.15rem;
     border: 1px solid var(--border);

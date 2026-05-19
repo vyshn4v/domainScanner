@@ -8,8 +8,10 @@ export type Severity = "critical" | "high" | "medium" | "low" | "none";
 
 export interface ScanRequest {
   id: string;
-  requestedFor: string;
+  domain: string;
+  requestedFor?: string;
   severity: Severity;
   status: Status;
   type: string;
+  scanType?: string;
 }

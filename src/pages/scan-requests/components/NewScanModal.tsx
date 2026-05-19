@@ -32,10 +32,12 @@ export function NewScanModal({ onClose, onSubmit }: NewScanModalProps) {
 
     onSubmit({
       id: `SCN-${1050 + Math.floor(Math.random() * 900)}`,
+      domain: target.trim(),
       requestedFor: target.trim(),
-      severity: "none",
+      severity,
       status: "queued",
       type,
+      scanType: type,
     });
     onClose();
   };

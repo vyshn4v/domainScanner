@@ -35,12 +35,16 @@ export default function OverviewTab({ data }: { data: PortScanData }) {
     <div className="dr-content">
       <div className="dr-two-column">
         <section className="dr-panel dr-score-panel">
-          <p className="dr-section-comment">Risk Score</p>
+          <p className="dr-section-comment">
+            Risk Score - {score}
+            /100
+          </p>
           <ScoreRing score={score} label="risk" />
           <div className="dr-score-copy">
             <h2>
               {scoreLabel.charAt(0).toUpperCase() + scoreLabel.slice(1)} —{" "}
-              {score}/100
+              {score}
+              /100
             </h2>
             <p>{ai_summary.executive_summary}</p>
           </div>
@@ -72,10 +76,10 @@ export default function OverviewTab({ data }: { data: PortScanData }) {
           </dl>
         </section>
 
-        <section className="dr-panel dr-panel-wide">
+        {/* <section className="dr-panel dr-panel-wide">
           <p className="dr-section-comment">Executive Summary</p>
           <p className="dr-summary-text">{ai_summary.executive_summary}</p>
-        </section>
+        </section> */}
       </div>
 
       <section className="dr-panel dr-panel-wide">

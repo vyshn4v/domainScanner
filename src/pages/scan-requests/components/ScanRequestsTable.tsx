@@ -4,7 +4,7 @@ import { ScanRequestRow } from "./ScanRequestRow";
 type ScanRequestsTableProps = {
   scans: ScanRequest[];
   onRescan: (id: string) => void;
-  onView: (target: string) => void;
+  onView: (scanType: string, id: string) => void;
 };
 
 export function ScanRequestsTable({
@@ -12,21 +12,22 @@ export function ScanRequestsTable({
   onRescan,
   onView,
 }: ScanRequestsTableProps) {
+  console.log("Rendering ScanRequestsTable with scans:", scans);
   return (
     <div className="sr-table">
       <div className="sr-table__head">
         <span>Scan ID</span>
         <span>Requested For</span>
         <span>Type</span>
-        <span>Severity</span>
+        {/* <span>Severity</span> */}
         <span>Status</span>
         <span>Actions</span>
       </div>
 
-      {scans.length === 0 ? (
+      {scans?.length === 0 ? (
         <p className="sr-empty">No scan requests yet.</p>
       ) : (
-        scans.map((scan) => (
+        scans?.map((scan) => (
           <ScanRequestRow
             key={scan.id}
             request={scan}

@@ -1,19 +1,7 @@
 import { Link } from "react-router";
-import { useTheme } from "./theme";
+import { useTheme } from "./util/theme";
 import "./Navbar.css";
-
-function parseNavbarUser() {
-  const rawUser = sessionStorage.getItem("user");
-  if (!rawUser) {
-    return null;
-  }
-
-  try {
-    return JSON.parse(rawUser);
-  } catch {
-    return null;
-  }
-}
+import { useAuth } from "../customHooks/useAuth";
 
 function getNavbarDisplayName(
   user: { firstName?: string; lastName?: string; name?: string } | null,
@@ -50,7 +38,7 @@ function getNavbarInitials(
 
 export function Navbar() {
   const { theme, setTheme } = useTheme();
-  const user = parseNavbarUser();
+  const { user } = useAuth();
   const displayName = getNavbarDisplayName(user);
   const initials = getNavbarInitials(user);
 
@@ -66,7 +54,7 @@ export function Navbar() {
         <div className="navbar-actions">
           {user && (
             <div className="navbar-nav">
-              <Link to="/dashboard" className="navbar-link">
+              <Link to="/scan/dashboard" className="navbar-link">
                 Dashboard
               </Link>
             </div>
@@ -133,10 +121,15 @@ export function Navbar() {
               </svg>
             </button>
           </div>
-          {user && (
+          {user ? (
             <Link to="/profile" className="navbar-profile" title="Profile">
               <span className="navbar-profile-avatar">{initials}</span>
               <span className="navbar-profile-name">{displayName}</span>
+            </Link>
+          ) : (
+            <Link to="/profile" className="navbar-profile" title="Profile">
+              <span className="navbar-profile-avatar">L</span>
+              <span className="navbar-profile-name">Login</span>
             </Link>
           )}
         </div>

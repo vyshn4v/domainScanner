@@ -90,6 +90,22 @@ export default function Profile() {
     }
   };
 
+  const handleLogout = () => {
+    if (user) {
+      api
+        .post(`/auth/logout`, {
+          withCredentials: true,
+        })
+        .then(() => {
+          sessionStorage.removeItem("user");
+          window.location.href = "/login";
+        })
+        .catch((err) => {
+          toast.error(err instanceof Error ? err.message : "Failed to logout");
+        });
+    }
+  };
+
   return (
     <main className="profile-root">
       <div className="profile-panel">
@@ -127,6 +143,9 @@ export default function Profile() {
 
         <button className="btn-primary profile-sync-btn" onClick={handleSync}>
           Sync from SSO
+        </button>
+        <button className="btn-logout profile-sync-btn" onClick={handleLogout}>
+          🚨 Logout
         </button>
       </div>
     </main>

@@ -13,17 +13,6 @@ import {
 } from "recharts";
 import type { PortScanData } from "../portScanData";
 
-const CHART_COLORS = [
-  "#3b82f6", // blue-500 - professional blue
-  "#10b981", // emerald-500 - success green
-  "#f59e0b", // amber-500 - warning orange
-  "#ef4444", // red-500 - danger red
-  "#8b5cf6", // violet-500 - creative purple
-  "#06b6d4", // cyan-500 - tech cyan
-  "#84cc16", // lime-500 - fresh green
-  "#f97316", // orange-500 - warm orange
-];
-
 const MODERN_COLORS = {
   primary: "#3b82f6", // blue-500
   secondary: "#8b5cf6", // violet-500
@@ -137,12 +126,12 @@ function ServiceRiskChart({ data }: { data: PortScanData }) {
               fontSize: "14px",
               fontWeight: "500",
             }}
-            formatter={(value: any, name: string) => {
+            formatter={(value, name) => {
               if (name === "risk_score") return [`${value}%`, "Risk"];
               if (name === "count") return [value, "Open ports"];
               return [value, name];
             }}
-            labelFormatter={(label: string) => `Service: ${label}`}
+            labelFormatter={(label) => `Service: ${String(label ?? "")}`}
           />
           <Scatter data={chartData} shape={renderPoint} />
         </ScatterChart>

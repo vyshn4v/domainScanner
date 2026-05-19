@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode, createContext } from "react";
 import api from "../lib/api";
-import { useLocation } from "react-router";
+import { Outlet, useLocation } from "react-router";
+import type { AuthContextType } from "./util/authProvider";
 
 const SSO_VALIDATE_URL = `${import.meta.env.VITE_SSO_URL}/auth/validate`;
 
@@ -12,17 +13,20 @@ function buildSsoUrl() {
   return `${SSO_VALIDATE_URL}?redirect=${encodeURIComponent(getRedirectTarget())}`;
 }
 
-export function AuthGuard({ children }: { children: ReactNode }) {
+export const AuthContext = createContext<AuthContextType | null>(null);
+
+export function AuthGuard({ children }: { children?: ReactNode }) {
+  const API_BASE_URL = window.location.origin;
   const location = useLocation();
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<object | null>(() =>
+  const [user, setUser] = useState<AuthContextType | null>(() =>
     JSON.parse(sessionStorage.getItem("user") || "null"),
   );
   const [isExcludedPage, setIsExcludedPage] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  // const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   console.log("AuthGuard - User:", user);
   console.log("pathname:", location.pathname);
-  const allowedPaths = ["/", "/profile"];
+  const allowedPaths = ["/"];
   useEffect(() => {
     if (allowedPaths.includes(location?.pathname || "")) {
       setIsExcludedPage(true);
@@ -39,7 +43,7 @@ export function AuthGuard({ children }: { children: ReactNode }) {
       .then((res) => {
         setUser(res.data);
         sessionStorage.setItem("user", JSON.stringify(res.data));
-        setIsAuthenticated(true);
+        // setIsAuthenticated(true);
       })
       .catch(() => {
         window.location.href = buildSsoUrl();
@@ -49,8 +53,49 @@ export function AuthGuard({ children }: { children: ReactNode }) {
         setLoading(false);
       });
   }, []);
+
+  useEffect(() => {
+    const checkVersion = async () => {
+      try {
+        const res = await fetch(
+          `${API_BASE_URL}/version.json?t=${Date.now()}`,
+        ).then((res) => res.json());
+        const oldVersion = localStorage.getItem("appVersion");
+        const theme = localStorage.getItem("theme");
+        console.log("theme check:", theme, res.theme);
+        if (!theme) {
+          localStorage.setItem("theme", res.theme);
+          window.location.reload();
+          return;
+        }
+        if (!oldVersion) {
+          localStorage.setItem("appVersion", res.version);
+          return;
+        }
+        if (res.version !== oldVersion) {
+          localStorage.setItem("appVersion", res.version);
+          window.location.reload();
+          console.log("Version check successful:", res.version);
+        } else {
+          console.log("Version check successful: version is up to date.");
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    checkVersion();
+
+    const interval = setInterval(checkVersion, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
   if (isExcludedPage) {
-    return <>{children}</>;
+    return (
+      <AuthContext.Provider value={user}>
+        {children ? children : <Outlet />}
+      </AuthContext.Provider>
+    );
   }
   if (loading) {
     return <>Loading......</>;
@@ -58,5 +103,9 @@ export function AuthGuard({ children }: { children: ReactNode }) {
   if (!user) {
     return null;
   }
-  return <>{children}</>;
+  return (
+    <AuthContext.Provider value={user}>
+      {children ? children : <Outlet />}
+    </AuthContext.Provider>
+  );
 }

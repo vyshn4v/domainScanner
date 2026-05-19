@@ -22,7 +22,7 @@ export default function SearchPage() {
     }
 
     setError("");
-    navigate(`/domain-report/${encodeURIComponent(normalizedDomain)}`);
+    navigate(`/scan/domain/${encodeURIComponent(normalizedDomain)}`);
   }
 
   function handleDomainChange(nextDomain: string) {

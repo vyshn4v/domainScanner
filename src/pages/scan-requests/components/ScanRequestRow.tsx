@@ -3,7 +3,7 @@ import type { ScanRequest } from "../types";
 type ScanRequestRowProps = {
   request: ScanRequest;
   onRescan: (id: string) => void;
-  onView: (target: string) => void;
+  onView: (type: string, id: string) => void;
 };
 
 const STATUS_CFG: Record<
@@ -25,7 +25,10 @@ const STATUS_CFG: Record<
   scheduled: { label: "Scheduled", badgeCls: "sr-badge--scheduled" },
 };
 
-const SEV_CFG: Record<ScanRequest["severity"], { label: string; cls: string }> =
+export const SEV_CFG: Record<
+  ScanRequest["severity"],
+  { label: string; cls: string }
+> =
   {
     critical: { label: "Critical", cls: "sr-sev--critical" },
     high: { label: "High", cls: "sr-sev--high" },
@@ -39,26 +42,29 @@ export function ScanRequestRow({
   onRescan,
   onView,
 }: ScanRequestRowProps) {
-  const status = STATUS_CFG[request.status];
-  const severity = SEV_CFG[request.severity];
-
+  const status = STATUS_CFG[request.status] ?? STATUS_CFG.queued;
+  const scanType = request.scanType ?? request.type;
+  const target = request.domain ?? request.requestedFor ?? "";
+  console.log("Rendering ScanRequestRow for request:", request);
   return (
     <div className="sr-table__row">
-      <span className="sr-cell-id">{request.id}</span>
-      <span className="sr-cell-target" title={request.requestedFor}>
-        {request.requestedFor}
+      <span className="sr-cell-id">{"SCN-" + request.id}</span>
+      <span className="sr-cell-target" title={target}>
+        {target}
       </span>
-      <span className="sr-cell-type">{request.type}</span>
-      <span className={`sr-sev ${severity.cls}`}>{severity.label}</span>
+      <span className="sr-cell-type">{scanType}</span>
+      {/* <span className={`sr-sev ${SEV_CFG[request.severity].cls}`}>
+        {SEV_CFG[request.severity].label}
+      </span> */}
       <span className={`sr-badge ${status.badgeCls}`}>
-        {status.dot && <span className={`sr-dot ${status.dot}`} />}
-        {status.label}
+        {status?.dot && <span className={`sr-dot ${status.dot}`} />}
+        {status?.label}
       </span>
       <div className="sr-actions">
         <button
           className="sr-icon-btn"
           title="View report"
-          onClick={() => onView(request.requestedFor)}
+          onClick={() => onView(scanType, request.id)}
         >
           <svg
             width="14"

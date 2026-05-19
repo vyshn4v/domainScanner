@@ -101,6 +101,11 @@
     padding: 0.95rem 1.4rem;
 }
 
+.btn-logout {
+    background: #facc15;
+    color: black;
+}
+
 @media (max-width: 720px) {
     .profile-header {
         flex-direction: column;

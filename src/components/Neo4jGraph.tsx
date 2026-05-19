@@ -60,17 +60,17 @@ type Props = {
   setSelectedNode: Dispatch<SetStateAction<SelectedNode | null>>;
 };
 
-function nodeBackground(type: GraphNode["type"]) {
-  if (type === "user") return "#0d9488";
-  if (type === "scan") return "#2563eb";
-  return "#c2410c";
-}
+// function nodeBackground(type: GraphNode["type"]) {
+//   if (type === "user") return "#0d9488";
+//   if (type === "scan") return "#2563eb";
+//   return "#c2410c";
+// }
 
-function nodeBorder(type: GraphNode["type"]) {
-  if (type === "user") return "#14b8a6";
-  if (type === "scan") return "#60a5fa";
-  return "#fb923c";
-}
+// function nodeBorder(type: GraphNode["type"]) {
+//   if (type === "user") return "#14b8a6";
+//   if (type === "scan") return "#60a5fa";
+//   return "#fb923c";
+// }
 
 export function Neo4jGraph({
   dashboardData,
@@ -110,7 +110,7 @@ export function Neo4jGraph({
         parentId: dashboardData.user.id,
       };
 
-      const resultNodes = scan.results.map((result, resultIndex) => {
+      const resultNodes: GraphNode[] = scan.results.map((result, resultIndex) => {
         const offset = (resultIndex - (scan.results.length - 1) / 2) * 180;
         return {
           id: result.id,

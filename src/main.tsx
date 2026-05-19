@@ -11,6 +11,8 @@ import ScanRequests from "./pages/scan-requests/ScanRequests.tsx";
 import Dashboard from "./pages/dashboard/Dashboard.tsx";
 import Profile from "./pages/profile/Profile.tsx";
 import RootErrorBoundary from "./pages/error/error.tsx";
+import { AuthGuard } from "./guard/AuthGuard.tsx";
+import { AuthProvider } from "./context/AuthProvider.tsx";
 const Router = createBrowserRouter([
   {
     path: "/",
@@ -21,33 +23,40 @@ const Router = createBrowserRouter([
         index: true,
         element: <SearchPage />,
       },
+
       {
-        path: "search",
-        element: <SearchPage />,
-      },
-      {
-        path: "dashboard",
-        element: <Dashboard />,
+        path: "scan",
+        element: <AuthGuard />,
+        children: [
+          {
+            path: "search",
+            element: <SearchPage />,
+          },
+          {
+            path: "dashboard",
+            element: <Dashboard />,
+          },
+          {
+            path: "domain/:domain",
+            element: <DomainReport />,
+          },
+          {
+            path: "lists",
+            element: <ScanRequests />,
+          },
+          {
+            path: "result/:id",
+            element: <PortScanReport />,
+          },
+        ],
       },
       {
         path: "profile",
-        element: <Profile />,
-      },
-      {
-        path: "domain-report",
-        element: <DomainReport />,
-      },
-      {
-        path: "domain-report/:domain",
-        element: <DomainReport />,
-      },
-      {
-        path: "recon/report-lists",
-        element: <ScanRequests />,
-      },
-      {
-        path: "recon/report/:domain",
-        element: <PortScanReport />,
+        element: (
+          <AuthGuard>
+            <Profile />
+          </AuthGuard>
+        ),
       },
     ],
   },
@@ -55,55 +64,57 @@ const Router = createBrowserRouter([
 
 createRoot(document.getElementById("root")!).render(
   <ThemeProvider>
-    <RouterProvider router={Router} />
-    <Toaster
-      position="top-center"
-      toastOptions={{
-        duration: 4000,
-        style: {
-          background: "var(--surface)",
-          color: "var(--text)",
-          border: "1px solid var(--border)",
-          borderRadius: "8px",
-          fontFamily: "Space Grotesk, ui-sans-serif, system-ui",
-          fontSize: "14px",
-          fontWeight: "500",
-          boxShadow:
-            "0 10px 25px rgba(0, 0, 0, 0.3), 0 4px 10px rgba(0, 0, 0, 0.2)",
-          backdropFilter: "blur(10px)",
-          padding: "12px 16px",
-          maxWidth: "400px",
-          margin: "0 auto",
-        },
-        success: {
+    <AuthProvider>
+      <RouterProvider router={Router} />
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          duration: 4000,
           style: {
             background: "var(--surface)",
-            color: "var(--green)",
-            border: "1px solid var(--green)",
+            color: "var(--text)",
+            border: "1px solid var(--border)",
             borderRadius: "8px",
+            fontFamily: "Space Grotesk, ui-sans-serif, system-ui",
+            fontSize: "14px",
+            fontWeight: "500",
             boxShadow:
-              "0 10px 25px var(--green-shadow), 0 4px 10px rgba(0, 0, 0, 0.2)",
+              "0 10px 25px rgba(0, 0, 0, 0.3), 0 4px 10px rgba(0, 0, 0, 0.2)",
+            backdropFilter: "blur(10px)",
+            padding: "12px 16px",
+            maxWidth: "400px",
+            margin: "0 auto",
           },
-          iconTheme: {
-            primary: "var(--green)",
-            secondary: "var(--surface)",
+          success: {
+            style: {
+              background: "var(--surface)",
+              color: "var(--green)",
+              border: "1px solid var(--green)",
+              borderRadius: "8px",
+              boxShadow:
+                "0 10px 25px var(--green-shadow), 0 4px 10px rgba(0, 0, 0, 0.2)",
+            },
+            iconTheme: {
+              primary: "var(--green)",
+              secondary: "var(--surface)",
+            },
           },
-        },
-        error: {
-          style: {
-            background: "var(--surface)",
-            color: "var(--red)",
-            border: "1px solid var(--red)",
-            borderRadius: "8px",
-            boxShadow:
-              "0 10px 25px var(--red-shadow), 0 4px 10px rgba(0, 0, 0, 0.2)",
+          error: {
+            style: {
+              background: "var(--surface)",
+              color: "var(--red)",
+              border: "1px solid var(--red)",
+              borderRadius: "8px",
+              boxShadow:
+                "0 10px 25px var(--red-shadow), 0 4px 10px rgba(0, 0, 0, 0.2)",
+            },
+            iconTheme: {
+              primary: "var(--red)",
+              secondary: "var(--surface)",
+            },
           },
-          iconTheme: {
-            primary: "var(--red)",
-            secondary: "var(--surface)",
-          },
-        },
-      }}
-    />
+        }}
+      />
+    </AuthProvider>
   </ThemeProvider>,
 );

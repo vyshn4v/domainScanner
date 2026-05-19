@@ -18,14 +18,16 @@ const TABS = [
 ];
 
 export default function PortScanReport() {
+  const params = useParams();
+  console.log("PortScanReport params:", params);
   const [data, setData] = useState<PortScanData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const fetchData = useCallback(async () => {
     try {
-      const cdata = await api.get("/recon/69fec35ada160c1c44260f42");
-      setData(cdata?.data || null);
-    } catch (err) {
+      const cdata = await api.get("/scan/" + params?.id);
+      setData(cdata?.data.resultData || null);
+    } catch {
       setError(true);
     } finally {
       setLoading(false);
@@ -100,10 +102,10 @@ export default function PortScanReport() {
               recommendations.
             </p>
             <div className="dr-hero-links">
-              <Link className="dr-back-link" to="/recon/report-lists">
+              {/* <Link className="dr-back-link" to="/recon/report-lists">
                 ← Back to requests
-              </Link>
-              <Link className="dr-back-link" to="/recon/report-lists">
+              </Link> */}
+              <Link className="dr-back-link" to="/scan/lists">
                 View all scan requests
               </Link>
             </div>

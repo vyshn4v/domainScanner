@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useState, startTransition } from "react";
 import type { ReactNode } from "react";
-import type { Theme } from "./theme";
-import { ThemeContext } from "./theme";
+import type { Theme } from "./util/theme";
+import { ThemeContext } from "./util/theme";
 
 interface ThemeProviderProps {
   children: ReactNode;
@@ -41,7 +41,8 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     const nextTheme = resolveTheme(theme);
     startTransition(() => setActualTheme(nextTheme));
     applyThemeClass(nextTheme);
-    if (typeof window !== "undefined") {
+    const savedTheme = localStorage.getItem("theme");
+    if (typeof window !== "undefined" && savedTheme) {
       localStorage.setItem("theme", theme);
     }
   }, [theme]);
