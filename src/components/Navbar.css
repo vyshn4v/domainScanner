@@ -32,31 +32,6 @@
     font-family: "Space Grotesk", sans-serif;
 }
 
-.navbar-nav {
-    display: flex;
-    gap: 2rem;
-}
-
-.navbar-link {
-    color: var(--muted);
-    text-decoration: none;
-    font-weight: 500;
-    font-size: 0.95rem;
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    transition: all 0.2s ease;
-}
-
-.navbar-link:hover {
-    color: var(--text);
-    background: var(--raised);
-}
-
-.navbar-link--active {
-    color: var(--green);
-    background: var(--green-soft);
-}
-
 .navbar-actions {
     display: flex;
     align-items: center;
@@ -72,6 +47,22 @@
     gap: 2px;
 }
 
+.navbar-profile-menu {
+    position: relative;
+}
+
+.navbar-profile-menu[open] .navbar-profile {
+    background: var(--surface);
+}
+
+.navbar-profile-menu summary {
+    list-style: none;
+}
+
+.navbar-profile-menu summary::-webkit-details-marker {
+    display: none;
+}
+
 .navbar-profile {
     display: inline-flex;
     align-items: center;
@@ -83,6 +74,7 @@
     color: var(--text);
     text-decoration: none;
     transition: background 0.2s ease, transform 0.2s ease;
+    cursor: pointer;
 }
 
 .navbar-profile:hover {
@@ -106,6 +98,44 @@
     font-size: 0.95rem;
     font-weight: 600;
     white-space: nowrap;
+}
+
+.navbar-profile-dropdown {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    z-index: 60;
+    min-width: 190px;
+    padding: 0.45rem;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.24);
+}
+
+.navbar-menu-item {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    border: 0;
+    border-radius: 8px;
+    padding: 0.7rem 0.85rem;
+    background: transparent;
+    color: var(--text);
+    font: inherit;
+    font-size: 0.92rem;
+    font-weight: 600;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.navbar-menu-item:hover {
+    background: var(--raised);
+}
+
+.navbar-menu-item--danger {
+    color: var(--red);
 }
 
 .theme-btn {
@@ -148,15 +178,6 @@
         padding: 0 0.75rem;
     }
 
-    .navbar-nav {
-        gap: 1rem;
-    }
-
-    .navbar-link {
-        padding: 0.5rem 0.75rem;
-        font-size: 0.9rem;
-    }
-
     .theme-switcher {
         gap: 1px;
     }
@@ -164,5 +185,9 @@
     .theme-btn {
         width: 32px;
         height: 32px;
+    }
+
+    .navbar-profile-name {
+        display: none;
     }
 }

@@ -89,6 +89,23 @@ export type DomainReportData = {
     self?: string;
   };
   attributes?: DomainAttributes;
+  scanOptions?: string;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+export type ScannerResponse = {
+  status: number;
+  data?: {
+    data?: DomainReportData;
+  };
+};
+
+  type: string;
+  links?: {
+    self?: string;
+  };
+  attributes?: DomainAttributes;
 };
 
 export type ScannerResponse = {
