@@ -20,9 +20,9 @@ export function ScanRequestsTable({
         <span>Requested For</span>
         <span>Type</span>
         <span>Created At</span>
+        <span>Updated At</span>
         {/* <span>Severity</span> */}
         <span>Status</span>
-        <span>Options</span>
         <span>Actions</span>
       </div>
 
@@ -41,4 +41,3 @@ export function ScanRequestsTable({
     </div>
   );
 }
-

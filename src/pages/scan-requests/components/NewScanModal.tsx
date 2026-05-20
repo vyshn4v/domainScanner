@@ -1,16 +1,12 @@
 import { useState } from "react";
 import { Button } from "../../../components/ui/Button";
-import type { ScanRequest, Severity } from "../types";
+import type { ScanRequest } from "../types";
+import { SCAN_OPTIONS_BY_TYPE } from "./scanOptionsConfig";
+import api from "../../../lib/api";
 
 const SCAN_TYPES = [
-  "Vulnerability",
-  "Network",
-  "Compliance",
-  "Malware",
-  "SAST",
-  "Container",
-  "Pentest",
-  "OWASP",
+  "Vulnerability Scan",
+  "Web Audit",
 ];
 
 type NewScanModalProps = {
@@ -20,26 +16,51 @@ type NewScanModalProps = {
 
 export function NewScanModal({ onClose, onSubmit }: NewScanModalProps) {
   const [target, setTarget] = useState("");
-  const [type, setType] = useState("Vulnerability");
-  const [severity, setSeverity] = useState<Severity>("medium");
+  const [type, setType] = useState("Vulnerability Scan");
+  const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const [error, setError] = useState("");
 
-  const submit = () => {
+  const toggleOption = (flag: string) => {
+    setSelectedOptions((prev) =>
+      prev.includes(flag) ? prev.filter((f) => f !== flag) : [...prev, flag],
+    );
+  };
+
+  const [loading, setLoading] = useState(false);
+
+  const submit = async () => {
     if (!target.trim()) {
       setError("Target domain or IP is required");
       return;
     }
 
-    onSubmit({
-      id: `SCN-${1050 + Math.floor(Math.random() * 900)}`,
-      domain: target.trim(),
-      requestedFor: target.trim(),
-      severity,
-      status: "queued",
-      type,
-      scanType: type,
-    });
-    onClose();
+    setLoading(true);
+    setError("");
+
+    try {
+      const apiType = type === "Web Audit" ? "web" : "port";
+      await api.post(`/scan/${apiType}/${encodeURIComponent(target.trim())}`, {
+        domain: target.trim(),
+        scanOptions: selectedOptions,
+      });
+
+      onSubmit({
+        id: `SCN-${1050 + Math.floor(Math.random() * 900)}`,
+        domain: target.trim(),
+        requestedFor: target.trim(),
+        severity: "none",
+        status: "queued",
+        type,
+        scanType: type,
+        scanOptions: selectedOptions.length > 0 ? selectedOptions : undefined,
+      });
+      onClose();
+    } catch (err: any) {
+      console.error(err);
+      setError(err?.response?.data?.message || err?.message || "Failed to schedule scan");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -75,46 +96,48 @@ export function NewScanModal({ onClose, onSubmit }: NewScanModalProps) {
             {error && <span className="sr-error-msg">{error}</span>}
           </div>
 
-          <div className="sr-field-row">
-            <div className="sr-field">
-              <label className="sr-label">Scan Type</label>
-              <select
-                className="sr-input"
-                value={type}
-                onChange={(e) => setType(e.target.value)}
-              >
-                {SCAN_TYPES.map((item) => (
-                  <option key={item} value={item}>
-                    {item}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="sr-field">
-              <label className="sr-label">Priority</label>
-              <select
-                className="sr-input"
-                value={severity}
-                onChange={(e) => setSeverity(e.target.value as Severity)}
-              >
-                {(["critical", "high", "medium", "low"] as Severity[]).map(
-                  (option) => (
-                    <option key={option} value={option}>
-                      {option.charAt(0).toUpperCase() + option.slice(1)}
-                    </option>
-                  ),
-                )}
-              </select>
+          <div className="sr-field">
+            <label className="sr-label">Scan Type</label>
+            <select
+              className="sr-input"
+              value={type}
+              onChange={(e) => {
+                setType(e.target.value);
+                setSelectedOptions([]);
+              }}
+            >
+              {SCAN_TYPES.map((item) => (
+                <option key={item} value={item}>
+                  {item}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="sr-field">
+            <label className="sr-label">Scan Options</label>
+            <div className="sr-opt-grid">
+              {(SCAN_OPTIONS_BY_TYPE[type] || []).map((opt) => (
+                <label key={opt.flag} className="sr-opt-checkbox">
+                  <input
+                    type="checkbox"
+                    checked={selectedOptions.includes(opt.flag)}
+                    onChange={() => toggleOption(opt.flag)}
+                  />
+                  <span className="sr-opt-flag">{opt.flag}</span>
+                  <span className="sr-opt-desc">{opt.description}</span>
+                </label>
+              ))}
             </div>
           </div>
         </div>
 
         <div className="sr-modal__footer">
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="ghost" onClick={onClose} disabled={loading}>
             Cancel
           </Button>
-          <Button variant="primary" onClick={submit}>
-            Submit Request →
+          <Button variant="primary" onClick={submit} disabled={loading}>
+            {loading ? "Submitting..." : "Submit Request →"}
           </Button>
         </div>
       </div>

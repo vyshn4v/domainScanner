@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: "primary" | "ghost" | "link";
+  size?: "sm" | "md";
   children: ReactNode;
 };
 
@@ -14,13 +15,15 @@ const variantClass = {
 
 export function Button({
   variant = "primary",
+  size = "md",
   className = "",
   ...props
 }: ButtonProps) {
+  const sizeClass = size === "sm" ? "btn-sm" : "";
   return (
     <button
       {...props}
-      className={`${variantClass[variant]} ${className}`.trim()}
+      className={`${variantClass[variant]} ${sizeClass} ${className}`.trim()}
     />
   );
 }

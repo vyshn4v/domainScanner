@@ -204,6 +204,12 @@ body {
   padding: 0.95rem 1.15rem;
 }
 
+.btn-sm {
+  padding: 0.52rem 1.1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+}
+
 .status-pill,
 .tag,
 .chip,
