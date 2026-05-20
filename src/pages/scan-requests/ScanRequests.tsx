@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router";
 import { Button } from "../../components/ui/Button";
 import { NewScanModal } from "./components/NewScanModal";
@@ -6,81 +6,6 @@ import { ScanRequestsTable } from "./components/ScanRequestsTable";
 import type { ScanRequest } from "./types";
 import "./ScanRequests.css";
 import api from "../../lib/api";
-
-const PAGE_SIZE = 5;
-
-// const MOCK: ScanRequest[] = [
-//   {
-//     id: "SCN-1042",
-//     requestedFor: "api.prod.internal",
-//     severity: "critical",
-//     status: "running",
-//     type: "Vulnerability",
-//   },
-//   {
-//     id: "SCN-1041",
-//     requestedFor: "app.company.com",
-//     severity: "high",
-//     status: "running",
-//     type: "OWASP",
-//   },
-//   {
-//     id: "SCN-1040",
-//     requestedFor: "payments-cluster.internal",
-//     severity: "critical",
-//     status: "queued",
-//     type: "Compliance",
-//   },
-//   {
-//     id: "SCN-1039",
-//     requestedFor: "db.internal",
-//     severity: "medium",
-//     status: "queued",
-//     type: "Network",
-//   },
-//   {
-//     id: "SCN-1038",
-//     requestedFor: "staging-k8s-nodes",
-//     severity: "none",
-//     status: "completed",
-//     type: "Malware",
-//   },
-//   {
-//     id: "SCN-1037",
-//     requestedFor: "github.com/org/frontend",
-//     severity: "high",
-//     status: "completed",
-//     type: "SAST",
-//   },
-//   {
-//     id: "SCN-1036",
-//     requestedFor: "10.0.0.0/16",
-//     severity: "low",
-//     status: "completed",
-//     type: "Network",
-//   },
-//   {
-//     id: "SCN-1035",
-//     requestedFor: "all-prod-services",
-//     severity: "high",
-//     status: "failed",
-//     type: "Compliance",
-//   },
-//   {
-//     id: "SCN-1034",
-//     requestedFor: "registry.internal/app:v3",
-//     severity: "none",
-//     status: "completed",
-//     type: "Container",
-//   },
-//   {
-//     id: "SCN-1033",
-//     requestedFor: "auth.internal",
-//     severity: "critical",
-//     status: "scheduled",
-//     type: "Pentest",
-//   },
-// ];
 
 export default function ScanRequests({
   theme = "dark",
@@ -90,47 +15,51 @@ export default function ScanRequests({
   const navigate = useNavigate();
   const [scans, setScans] = useState<ScanRequest[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState<number>(() => {
+    const saved = localStorage.getItem("scanRequests_pageSize");
+    return saved ? Number(saved) : 5;
+  });
   const [showModal, setShowModal] = useState(false);
-  const [totalPages, setTotalPages] = useState(0);
-  const [currentScans, setCurrentScans] = useState<ScanRequest[]>([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const getScanList = async () => {
-    try {
-      const response = await api.get<ScanRequest[]>("/scan");
-      const nextScans = response.data || [];
-      console.log("Scans state updated:", nextScans);
-      const nextTotalPages = Math.max(
-        1,
-        Math.ceil(nextScans.length / PAGE_SIZE),
-      );
-      const nextCurrentScans = nextScans.slice(
-        (currentPage - 1) * PAGE_SIZE,
-        currentPage * PAGE_SIZE,
-      );
-      console.log("Current scans for page:", nextCurrentScans);
-      setScans(nextScans);
-      setTotalPages(nextTotalPages);
-      setCurrentScans(nextCurrentScans);
-      return response.data;
-    } catch (error) {
-      console.error("Error fetching scan list:", error);
-      return [];
-    }
+  const totalPages = useMemo(
+    () => Math.max(1, Math.ceil(scans.length / pageSize)),
+    [scans.length, pageSize],
+  );
+
+  const currentScans = useMemo(
+    () => scans.slice((currentPage - 1) * pageSize, currentPage * pageSize),
+    [scans, currentPage, pageSize],
+  );
+
+  const fetchScans = () => {
+    setIsRefreshing(true);
+    api.get<ScanRequest[]>("/scan")
+      .then((response) => {
+        const data = response.data || [];
+        setScans(data);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch scans:", err);
+      })
+      .finally(() => {
+        setIsRefreshing(false);
+      });
   };
 
   useEffect(() => {
-    if (!scans?.length) {
-      console.log("No scans found, fetching scan list...");
-      getScanList();
-    }
-  }, [currentPage, scans.length]);
-  const handleNewRequest = (scan: ScanRequest) => {
-    setScans((current) => [scan, ...current]);
+    fetchScans();
+  }, []);
+
+  const handleNewRequest = () => {
+    fetchScans();
     setCurrentPage(1);
-    setCurrentScans((current) => [scan, ...current].slice(0, PAGE_SIZE));
-    setTotalPages((currentTotal) =>
-      Math.max(currentTotal, Math.ceil((scans.length + 1) / PAGE_SIZE)),
-    );
+  };
+
+  const handlePageSizeChange = (newSize: number) => {
+    setPageSize(newSize);
+    localStorage.setItem("scanRequests_pageSize", String(newSize));
+    setCurrentPage(1);
   };
 
   const handleRescan = (id: string) => {
@@ -153,9 +82,47 @@ export default function ScanRequests({
             <p className="sr-eyebrow">My Requests</p>
             <h1 className="sr-page-title">Scan Requests</h1>
           </div>
-          <Button variant="primary" onClick={() => setShowModal(true)}>
-            + New Request
-          </Button>
+          <div className="sr-header-actions">
+            <div className="sr-page-size-selector">
+              <label htmlFor="pageSizeSelect">Rows per page:</label>
+              <select
+                id="pageSizeSelect"
+                value={pageSize}
+                onChange={(e) => handlePageSizeChange(Number(e.target.value))}
+                className="sr-page-size-dropdown"
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+              </select>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={fetchScans}
+              disabled={isRefreshing}
+              className="sr-refresh-btn"
+              title="Refresh"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className={isRefreshing ? "sr-spin" : ""}
+              >
+                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+              </svg>
+            </Button>
+            <Button variant="primary" size="sm" onClick={() => setShowModal(true)}>
+              + New Request
+            </Button>
+          </div>
         </div>
 
         <ScanRequestsTable

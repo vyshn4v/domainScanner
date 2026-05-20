@@ -15,6 +15,6 @@ export interface ScanRequest {
   type: string;
   scanType?: string;
   createdAt?: string;
+  updatedAt?: string;
   scanOptions?: string[];
 }
-
