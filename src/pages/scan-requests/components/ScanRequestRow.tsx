@@ -28,14 +28,13 @@ const STATUS_CFG: Record<
 export const SEV_CFG: Record<
   ScanRequest["severity"],
   { label: string; cls: string }
-> =
-  {
-    critical: { label: "Critical", cls: "sr-sev--critical" },
-    high: { label: "High", cls: "sr-sev--high" },
-    medium: { label: "Medium", cls: "sr-sev--medium" },
-    low: { label: "Low", cls: "sr-sev--low" },
-    none: { label: "—", cls: "sr-sev--none" },
-  };
+> = {
+  critical: { label: "Critical", cls: "sr-sev--critical" },
+  high: { label: "High", cls: "sr-sev--high" },
+  medium: { label: "Medium", cls: "sr-sev--medium" },
+  low: { label: "Low", cls: "sr-sev--low" },
+  none: { label: "—", cls: "sr-sev--none" },
+};
 
 export function ScanRequestRow({
   request,
@@ -45,6 +44,8 @@ export function ScanRequestRow({
   const status = STATUS_CFG[request.status] ?? STATUS_CFG.queued;
   const scanType = request.scanType ?? request.type;
   const target = request.domain ?? request.requestedFor ?? "";
+  const formattedDate = request.createdAt ? new Date(request.createdAt).toLocaleDateString('en-GB') : '-';
+  const optionsText = request.scanOptions && request.scanOptions.length > 0 ? request.scanOptions.join(', ') : 'None';
   console.log("Rendering ScanRequestRow for request:", request);
   return (
     <div className="sr-table__row">
@@ -99,3 +100,4 @@ export function ScanRequestRow({
     </div>
   );
 }
+

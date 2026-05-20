@@ -14,4 +14,7 @@ export interface ScanRequest {
   status: Status;
   type: string;
   scanType?: string;
+  createdAt?: string;
+  scanOptions?: string[];
 }
+

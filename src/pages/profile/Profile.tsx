@@ -1,7 +1,8 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import "./Profile.css";
 import api from "../../lib/api";
+import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 
 type SsoUser = {
   firstName?: string;
@@ -64,34 +65,11 @@ export default function Profile() {
   const user = useMemo(() => parseSessionUser(), []);
   const displayName = getDisplayName(user);
   const initials = getInitials(user);
-
-  const handleSync = () => {
-    if (user) {
-      api
-        .get(`/auth/validate`, {
-          withCredentials: true,
-        })
-        .then((res) => {
-          const updatedUser = res.data;
-          sessionStorage.setItem("user", JSON.stringify(updatedUser));
-          toast.success("Profile data updated from SSO");
-          //   window.location.reload();
-        })
-        .catch((err) => {
-          toast.error(
-            err instanceof Error
-              ? err.message
-              : "Failed to sync profile data from SSO",
-          );
-        });
-      //   window.location.reload();
-    } else {
-      toast.error("No profile data available to sync.");
-    }
-  };
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const handleLogout = () => {
     if (user) {
+      setShowLogoutConfirm(false);
       api
         .post(`/auth/logout`, {
           withCredentials: true,
@@ -118,7 +96,7 @@ export default function Profile() {
             )}
           </div>
           <div>
-            <p className="profile-eyebrow">Profile</p>
+            <p className="profile-eyebrow">Account</p>
             <h1 className="profile-title">{displayName}</h1>
             <p className="profile-subtitle">
               {user?.email ?? "No email available"}
@@ -129,25 +107,52 @@ export default function Profile() {
         <div className="profile-details">
           <div className="profile-detail">
             <dt>First name</dt>
-            <dd>{user?.firstName ?? "—"}</dd>
+            <dd>{user?.firstName || "-"}</dd>
           </div>
           <div className="profile-detail">
             <dt>Last name</dt>
-            <dd>{user?.lastName ?? "—"}</dd>
+            <dd>{user?.lastName || "-"}</dd>
           </div>
           <div className="profile-detail profile-detail--full">
             <dt>Email</dt>
-            <dd>{user?.email ?? "—"}</dd>
+            <dd>{user?.email || "-"}</dd>
           </div>
         </div>
 
-        <button className="btn-primary profile-sync-btn" onClick={handleSync}>
-          Sync from SSO
-        </button>
-        <button className="btn-logout profile-sync-btn" onClick={handleLogout}>
-          🚨 Logout
-        </button>
+        <div className="profile-actions">
+          <button
+            className="profile-btn profile-btn--danger"
+            onClick={() => setShowLogoutConfirm(true)}
+          >
+            <svg
+              className="profile-btn-icon"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+            Logout
+          </button>
+        </div>
       </div>
+      <ConfirmDialog
+        open={showLogoutConfirm}
+        title="Logout"
+        message="Are you sure you want to logout?"
+        confirmLabel="Logout"
+        tone="danger"
+        onCancel={() => setShowLogoutConfirm(false)}
+        onConfirm={handleLogout}
+      />
     </main>
   );
 }

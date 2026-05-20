@@ -1,14 +1,45 @@
-/* Dashboard Styles */
+/* Dashboard shell */
 
 .dashboard {
     min-height: 100vh;
-    background: var(--background);
+    background: var(--bg);
     padding: 2rem 1rem;
 }
 
 .dashboard-container {
     max-width: 1400px;
     margin: 0 auto;
+}
+
+.dashboard-placeholder {
+    width: min(760px, 100%);
+    margin: 4rem auto 0;
+    padding: 2rem;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface);
+    text-align: center;
+}
+
+.dashboard-placeholder__eyebrow {
+    margin: 0 0 0.5rem;
+    color: var(--faint);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.dashboard-placeholder__title {
+    margin: 0;
+    color: var(--text);
+    font-size: clamp(1.5rem, 2vw, 2rem);
+    font-weight: 700;
+}
+
+.dashboard-placeholder__copy {
+    margin: 0.75rem 0 0;
+    color: var(--muted);
 }
 
 .dashboard-header {

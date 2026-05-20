@@ -1,7 +1,11 @@
+import { useRef, useState } from "react";
 import { Link } from "react-router";
+import toast from "react-hot-toast";
 import { useTheme } from "./util/theme";
 import "./Navbar.css";
 import { useAuth } from "../customHooks/useAuth";
+import api from "../lib/api";
+import { ConfirmDialog } from "./ui/ConfirmDialog";
 
 function getNavbarDisplayName(
   user: { firstName?: string; lastName?: string; name?: string } | null,
@@ -38,9 +42,38 @@ function getNavbarInitials(
 
 export function Navbar() {
   const { theme, setTheme } = useTheme();
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const displayName = getNavbarDisplayName(user);
   const initials = getNavbarInitials(user);
+  const profileMenuRef = useRef<HTMLDetailsElement>(null);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
+  const closeProfileMenu = () => {
+    if (profileMenuRef.current) {
+      profileMenuRef.current.open = false;
+    }
+  };
+
+  const requestLogout = () => {
+    closeProfileMenu();
+    setShowLogoutConfirm(true);
+  };
+
+  const handleLogout = () => {
+    setShowLogoutConfirm(false);
+    api
+      .post(`/auth/logout`, {
+        withCredentials: true,
+      })
+      .then(() => {
+        sessionStorage.removeItem("user");
+        setUser(null);
+        window.location.href = "/login";
+      })
+      .catch((err) => {
+        toast.error(err instanceof Error ? err.message : "Failed to logout");
+      });
+  };
 
   return (
     <nav className="navbar">
@@ -52,13 +85,6 @@ export function Navbar() {
         </div>
 
         <div className="navbar-actions">
-          {user && (
-            <div className="navbar-nav">
-              <Link to="/scan/dashboard" className="navbar-link">
-                Dashboard
-              </Link>
-            </div>
-          )}
           <div className="theme-switcher">
             <button
               onClick={() => setTheme("light")}
@@ -122,10 +148,35 @@ export function Navbar() {
             </button>
           </div>
           {user ? (
-            <Link to="/profile" className="navbar-profile" title="Profile">
-              <span className="navbar-profile-avatar">{initials}</span>
-              <span className="navbar-profile-name">{displayName}</span>
-            </Link>
+            <details className="navbar-profile-menu" ref={profileMenuRef}>
+              <summary className="navbar-profile" title="Profile menu">
+                <span className="navbar-profile-avatar">{initials}</span>
+                <span className="navbar-profile-name">{displayName}</span>
+              </summary>
+              <div className="navbar-profile-dropdown">
+                <Link
+                  to="/profile"
+                  className="navbar-menu-item"
+                  onClick={closeProfileMenu}
+                >
+                  Profile
+                </Link>
+                <Link
+                  to="/scan/lists"
+                  className="navbar-menu-item"
+                  onClick={closeProfileMenu}
+                >
+                  Scan Requests
+                </Link>
+                <button
+                  type="button"
+                  className="navbar-menu-item navbar-menu-item--danger"
+                  onClick={requestLogout}
+                >
+                  Logout
+                </button>
+              </div>
+            </details>
           ) : (
             <Link to="/profile" className="navbar-profile" title="Profile">
               <span className="navbar-profile-avatar">L</span>
@@ -134,6 +185,15 @@ export function Navbar() {
           )}
         </div>
       </div>
+      <ConfirmDialog
+        open={showLogoutConfirm}
+        title="Logout"
+        message="Are you sure you want to logout?"
+        confirmLabel="Logout"
+        tone="danger"
+        onCancel={() => setShowLogoutConfirm(false)}
+        onConfirm={handleLogout}
+      />
     </nav>
   );
 }
