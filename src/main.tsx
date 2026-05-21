@@ -1,18 +1,18 @@
 import { createRoot } from "react-dom/client";
-import "./index.css";
-import DomainReport from "./pages/domain-report/DomainReport.tsx";
-import SearchPage from "./pages/search/SearchPage.tsx";
+import "./presentation/styles/index.css";
+import DomainReport from "./presentation/pages/domain-report/DomainReport.tsx";
+import SearchPage from "./presentation/pages/search/SearchPage.tsx";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import { Toaster } from "react-hot-toast";
-import { ThemeProvider } from "./components/ThemeProvider";
-import { AppLayout } from "./AppLayout";
-import PortScanReport from "./pages/portscan-report/PortScanReport.tsx";
-import ScanRequests from "./pages/scan-requests/ScanRequests.tsx";
-import Dashboard from "./pages/dashboard/Dashboard.tsx";
-import Profile from "./pages/profile/Profile.tsx";
-import RootErrorBoundary from "./pages/error/error.tsx";
-import { AuthGuard } from "./guard/AuthGuard.tsx";
-import { AuthProvider } from "./context/AuthProvider.tsx";
+import { ThemeProvider } from "./presentation/components/layout/ThemeProvider";
+import { AppLayout } from "./presentation/layouts/AppLayout";
+import PortScanReport from "./presentation/pages/portscan-report/PortScanReport.tsx";
+import ScanRequests from "./presentation/pages/scan-requests/ScanRequests.tsx";
+import Dashboard from "./presentation/pages/dashboard/Dashboard.tsx";
+import Profile from "./presentation/pages/profile/Profile.tsx";
+import RootErrorBoundary from "./presentation/pages/error/error.tsx";
+import { AuthGuard } from "./presentation/routes/AuthGuard.tsx";
+import { AuthProvider } from "./application/auth/AuthProvider.tsx";
 const Router = createBrowserRouter([
   {
     path: "/",
