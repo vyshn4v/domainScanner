@@ -99,18 +99,4 @@ export type ScannerResponse = {
   data?: {
     data?: DomainReportData;
   };
-};
-
-  type: string;
-  links?: {
-    self?: string;
-  };
-  attributes?: DomainAttributes;
-};
-
-export type ScannerResponse = {
-  status: number;
-  data?: {
-    data?: DomainReportData;
-  };
-};
+}

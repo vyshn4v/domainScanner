@@ -65,7 +65,7 @@
 .confirm-dialog__button--default {
     border-color: var(--green);
     background: var(--green);
-    color: #fff;
+    color: var(--btn-primary-text);
 }
 
 .confirm-dialog__button--danger {

@@ -125,9 +125,8 @@
     height: 520px;
     display: block;
     border-radius: 24px;
-    background: radial-gradient(circle at top, rgba(56, 189, 248, 0.12), transparent 30%),
-        linear-gradient(180deg, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.9));
-    border: 1px solid rgba(148, 163, 184, 0.18);
+    background: var(--graph-bg);
+    border: 1px solid var(--border);
 }
 
 .graph-node-group:hover circle {
@@ -288,7 +287,7 @@
 
 .graph-node--active {
     border-color: var(--green);
-    box-shadow: 0 20px 40px rgba(52, 211, 153, 0.15);
+    box-shadow: 0 20px 40px var(--green-shadow);
 }
 
 .graph-node-type {
