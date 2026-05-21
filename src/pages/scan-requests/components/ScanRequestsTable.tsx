@@ -22,8 +22,10 @@ export function ScanRequestsTable({
         <span>Created At</span>
         <span>Updated At</span>
         {/* <span>Severity</span> */}
-        <span>Status</span>
-        <span>Actions</span>
+        <div className="sr-head-trailing">
+          <span>Status</span>
+          <span>Actions</span>
+        </div>
       </div>
 
       {scans?.length === 0 ? (

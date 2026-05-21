@@ -133,10 +133,10 @@ export function NewScanModal({ onClose, onSubmit }: NewScanModalProps) {
         </div>
 
         <div className="sr-modal__footer">
-          <Button variant="ghost" onClick={onClose} disabled={loading}>
+          <Button variant="ghost" size="sm" onClick={onClose} disabled={loading}>
             Cancel
           </Button>
-          <Button variant="primary" onClick={submit} disabled={loading}>
+          <Button variant="primary" size="sm" onClick={submit} disabled={loading}>
             {loading ? "Submitting..." : "Submit Request →"}
           </Button>
         </div>

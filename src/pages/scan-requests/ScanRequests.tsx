@@ -21,6 +21,14 @@ export default function ScanRequests({
   });
   const [showModal, setShowModal] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [showBanner, setShowBanner] = useState(
+    () => localStorage.getItem("sr_failedBannerDismissed") !== "1",
+  );
+
+  const dismissBanner = () => {
+    localStorage.setItem("sr_failedBannerDismissed", "1");
+    setShowBanner(false);
+  };
 
   const totalPages = useMemo(
     () => Math.max(1, Math.ceil(scans.length / pageSize)),
@@ -124,6 +132,38 @@ export default function ScanRequests({
             </Button>
           </div>
         </div>
+
+        {showBanner && (
+          <div className="sr-info-banner" role="status">
+            <div className="sr-info-banner__icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
+                <path d="M12 8v4M12 16h.01" />
+              </svg>
+            </div>
+            <div className="sr-info-banner__body">
+              <span className="sr-info-banner__label">Auto-retry enabled</span>
+              <p className="sr-info-banner__text">
+                Failed scans are automatically re-queued every <strong>3 hours</strong>. You can also trigger a manual rescan anytime using the
+                <span className="sr-info-banner__icon-ref">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <polyline points="1 4 1 10 7 10" />
+                    <path d="M3.51 15a9 9 0 1 0 .49-4.95" />
+                  </svg>
+                </span>
+                icon in the Actions column.
+              </p>
+            </div>
+            <button
+              className="sr-info-banner__close"
+              onClick={dismissBanner}
+              title="Dismiss"
+              aria-label="Dismiss notification"
+            >
+              ✕
+            </button>
+          </div>
+        )}
 
         <ScanRequestsTable
           scans={currentScans}
