@@ -1,3 +1,6 @@
+// @deprecated — This file is NOT imported anywhere in the app.
+// The active AuthGuard is src/guard/AuthGuard.tsx
+// This file is kept for reference only and should not be modified.
 import { useEffect, useState, type ReactNode, createContext } from "react";
 import api from "../lib/api";
 import { Outlet, useLocation } from "react-router";
@@ -23,9 +26,6 @@ export function AuthGuard({ children }: { children?: ReactNode }) {
     JSON.parse(sessionStorage.getItem("user") || "null"),
   );
   const [isExcludedPage, setIsExcludedPage] = useState(false);
-  // const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  console.log("AuthGuard - User:", user);
-  console.log("pathname:", location.pathname);
   const allowedPaths = ["/"];
   useEffect(() => {
     if (allowedPaths.includes(location?.pathname || "")) {
@@ -62,7 +62,6 @@ export function AuthGuard({ children }: { children?: ReactNode }) {
         ).then((res) => res.json());
         const oldVersion = localStorage.getItem("appVersion");
         const theme = localStorage.getItem("theme");
-        console.log("theme check:", theme, res.theme);
         if (!theme) {
           localStorage.setItem("theme", res.theme);
           window.location.reload();
@@ -75,9 +74,6 @@ export function AuthGuard({ children }: { children?: ReactNode }) {
         if (res.version !== oldVersion) {
           localStorage.setItem("appVersion", res.version);
           window.location.reload();
-          console.log("Version check successful:", res.version);
-        } else {
-          console.log("Version check successful: version is up to date.");
         }
       } catch (err) {
         console.error(err);

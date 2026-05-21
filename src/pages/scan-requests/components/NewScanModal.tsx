@@ -55,9 +55,11 @@ export function NewScanModal({ onClose, onSubmit }: NewScanModalProps) {
         scanOptions: selectedOptions.length > 0 ? selectedOptions : undefined,
       });
       onClose();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setError(err?.response?.data?.message || err?.message || "Failed to schedule scan");
+      const message = err instanceof Error ? err.message : "Failed to schedule scan";
+      const apiMessage = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      setError(apiMessage || message);
     } finally {
       setLoading(false);
     }

@@ -61,7 +61,6 @@ export function ScanRequestRow({
     ? new Date(request.createdAt).toLocaleDateString("en-GB")
     : "-";
   const options = request.scanOptions ?? [];
-  console.log("Rendering ScanRequestRow for request:", request);
 
   return (
     <>

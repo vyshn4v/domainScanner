@@ -10,6 +10,7 @@ import {
   ScatterChart,
   Scatter,
   ZAxis,
+  type ScatterShapeProps,
 } from "recharts";
 import type { PortScanData } from "../portScanData";
 import { useTheme } from "../../../components/util/theme";
@@ -61,14 +62,16 @@ function ServiceRiskChart({ data }: { data: PortScanData }) {
     return colors.info;
   };
 
-  const renderPoint = ({ cx, cy, payload }: any) => {
-    const size = Math.max(12, Math.min(32, 8 + (payload.count || 1) * 6));
+  const renderPoint = (props: ScatterShapeProps) => {
+    const { cx = 0, cy = 0, payload } = props;
+    const data = payload as { risk_score: number; count: number };
+    const size = Math.max(12, Math.min(32, 8 + (data.count || 1) * 6));
     return (
       <circle
         cx={cx}
         cy={cy}
         r={size / 2}
-        fill={getRiskColor(payload.risk_score)}
+        fill={getRiskColor(data.risk_score)}
         fillOpacity={0.88}
         stroke="rgba(255,255,255,0.2)"
         strokeWidth={1.5}
@@ -277,7 +280,7 @@ function RiskTrendChart({ data }: { data: PortScanData }) {
               fontSize: "14px",
               fontWeight: "500",
             }}
-            formatter={(value: any) => `${value}%`}
+            formatter={(value) => (value !== undefined && value !== null ? `${value}%` : "")}
           />
           <Area
             type="monotone"

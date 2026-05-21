@@ -19,7 +19,6 @@ const TABS = [
 
 export default function PortScanReport() {
   const params = useParams();
-  console.log("PortScanReport params:", params);
   const [data, setData] = useState<PortScanData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);

@@ -18,7 +18,6 @@ export function ScanRequestsTable({
   sortDirection,
   onSort,
 }: ScanRequestsTableProps) {
-  console.log("Rendering ScanRequestsTable with scans:", scans);
 
   const renderHeader = (field: string, label: string) => {
     const isActive = sortField === field;

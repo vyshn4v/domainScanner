@@ -1,18 +1,15 @@
 import { useEffect, useState, useMemo, useRef } from "react";
 import { useNavigate } from "react-router";
-import axios from "axios";
 import { Button } from "../../components/ui/Button";
 import { NewScanModal } from "./components/NewScanModal";
 import { ScanRequestsTable } from "./components/ScanRequestsTable";
 import type { ScanRequest } from "./types";
 import "./ScanRequests.css";
 import api from "../../lib/api";
+import { useTheme } from "../../components/util/theme";
 
-export default function ScanRequests({
-  theme = "dark",
-}: {
-  theme?: "dark" | "light";
-}) {
+export default function ScanRequests() {
+  const { theme } = useTheme();
   const navigate = useNavigate();
   const [scans, setScans] = useState<ScanRequest[]>([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -61,8 +58,8 @@ export default function ScanRequests({
     if (!sortField) return scans;
     const sorted = [...scans];
     sorted.sort((a, b) => {
-      let valA: any = "";
-      let valB: any = "";
+      let valA: string | number = "";
+      let valB: string | number = "";
 
       if (sortField === "id") {
         valA = Number(a.id) || 0;
@@ -154,7 +151,7 @@ export default function ScanRequests({
         setTotalCount(data.totalCount || 0);
       })
       .catch((err) => {
-        if (axios.isCancel(err) || err?.name === "CanceledError") {
+        if (err?.name === "CanceledError" || err?.name === "AbortError") {
           return;
         }
         if (controller.signal.aborted) return;
@@ -228,7 +225,7 @@ export default function ScanRequests({
   };
 
   return (
-    <div className={`sr-root ${theme}`}>
+    <div className={`sr-root ${theme === "light" ? "light" : "dark"}`}>
       <div className="sr-page">
         <div className="sr-page-header">
           <div>
