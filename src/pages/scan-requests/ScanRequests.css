@@ -1511,6 +1511,6 @@ select.sr-input option {
     
     .sr-filter-dropdown {
         flex: 1;
-        max-width: 240px;
+        max-width: none;
     }
 }

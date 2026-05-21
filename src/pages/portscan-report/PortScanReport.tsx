@@ -44,49 +44,29 @@ export default function PortScanReport() {
 
   if (loading) {
     return (
-      <div className="dr-root">
-        <main
-          style={{
-            maxWidth: "1180px",
-            margin: "0 auto",
-            padding: "1.5rem 1rem 4rem",
-            textAlign: "center",
-          }}
-        >
+      <main className="dr-root">
+        <section className="dr-main" style={{ textAlign: "center" }}>
           <p>Loading port scan report...</p>
-        </main>
-      </div>
+        </section>
+      </main>
     );
   }
 
   if (error || !data) {
     return (
-      <div className="dr-root">
-        <main
-          style={{
-            maxWidth: "1180px",
-            margin: "0 auto",
-            padding: "1.5rem 1rem 4rem",
-            textAlign: "center",
-          }}
-        >
+      <main className="dr-root">
+        <section className="dr-main">
           <div className="dr-banner dr-banner--error">
             <p>Failed to load port scan report. Please try again later.</p>
           </div>
-        </main>
-      </div>
+        </section>
+      </main>
     );
   }
 
   return (
-    <div className="dr-root">
-      <main
-        style={{
-          maxWidth: "1180px",
-          margin: "0 auto",
-          padding: "1.5rem 1rem 4rem",
-        }}
-      >
+    <main className="dr-root">
+      <section className="dr-main">
         <header className="dr-hero">
           <div className="dr-hero-copy">
             <p className="dr-eyebrow">Portscan Report</p>
@@ -148,7 +128,7 @@ export default function PortScanReport() {
         {activeTab === 2 && <PortsTab data={data} />}
         {activeTab === 3 && <AIAnalysisTab data={data} />}
         {activeTab === 4 && <RecommendationsTab data={data} />}
-      </main>
-    </div>
+      </section>
+    </main>
   );
 }
