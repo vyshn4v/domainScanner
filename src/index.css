@@ -14,17 +14,29 @@
   --text: #eef3f8;
   --muted: #a7b3c2;
   --faint: #728093;
-  --green: #34d399;
-  --green-soft: rgba(52, 211, 153, 0.12);
-  --green-shadow: rgba(52, 211, 153, 0.15);
+  --green: #a78bfa;
+  --green-soft: rgba(167, 139, 250, 0.12);
+  --green-shadow: rgba(167, 139, 250, 0.16);
+  --green-border: rgba(167, 139, 250, 0.24);
+  --green-border-strong: rgba(167, 139, 250, 0.35);
+  --green-hover: #8b5cf6;
+  --btn-primary-text: #080b0f;
   --red: #fb7185;
+  --red-soft: rgba(251, 113, 133, 0.12);
+  --red-border: rgba(251, 113, 133, 0.24);
   --red-shadow: rgba(251, 113, 133, 0.15);
   --yellow: #fbbf24;
+  --yellow-soft: rgba(251, 191, 36, 0.12);
+  --yellow-border: rgba(251, 191, 36, 0.24);
   --blue: #60a5fa;
+  --blue-soft: rgba(96, 165, 250, 0.12);
+  --blue-border: rgba(96, 165, 250, 0.24);
   --purple: #a78bfa;
   --indigo: #6366f1;
   --indigo-soft: rgba(99, 102, 241, 0.12);
   --indigo-glow: rgba(99, 102, 241, 0.18);
+  --meter-track: rgba(255, 255, 255, 0.08);
+  --graph-bg: radial-gradient(circle at top, rgba(167, 139, 250, 0.15), transparent 40%), linear-gradient(180deg, #10151c, #080b0f);
 }
 
 html.light {
@@ -36,14 +48,26 @@ html.light {
   --text: #111827;
   --muted: #475569;
   --faint: #718096;
-  --green: #05603a;
-  --green-soft: rgba(5, 96, 58, 0.08);
-  --green-shadow: rgba(5, 96, 58, 0.14);
+  --green: #6d28d9;
+  --green-soft: rgba(109, 40, 217, 0.08);
+  --green-shadow: rgba(109, 40, 217, 0.14);
+  --green-border: rgba(109, 40, 217, 0.24);
+  --green-border-strong: rgba(109, 40, 217, 0.35);
+  --green-hover: #5b21b6;
+  --btn-primary-text: #ffffff;
   --red: #b91c1c;
+  --red-soft: rgba(185, 28, 28, 0.08);
+  --red-border: rgba(185, 28, 28, 0.24);
   --red-shadow: rgba(185, 28, 28, 0.12);
   --yellow: #b45309;
+  --yellow-soft: rgba(180, 83, 9, 0.08);
+  --yellow-border: rgba(180, 83, 9, 0.24);
   --blue: #1d4ed8;
+  --blue-soft: rgba(29, 78, 216, 0.08);
+  --blue-border: rgba(29, 78, 216, 0.24);
   --purple: #7c3aed;
+  --meter-track: rgba(0, 0, 0, 0.06);
+  --graph-bg: radial-gradient(circle at top, rgba(109, 40, 217, 0.06), transparent 45%), linear-gradient(180deg, #ffffff, #f1f5f9);
 }
 
 html.dark {
@@ -55,17 +79,29 @@ html.dark {
   --text: #eef3f8;
   --muted: #a7b3c2;
   --faint: #728093;
-  --green: #34d399;
-  --green-soft: rgba(52, 211, 153, 0.12);
-  --green-shadow: rgba(52, 211, 153, 0.15);
+  --green: #a78bfa;
+  --green-soft: rgba(167, 139, 250, 0.12);
+  --green-shadow: rgba(167, 139, 250, 0.16);
+  --green-border: rgba(167, 139, 250, 0.24);
+  --green-border-strong: rgba(167, 139, 250, 0.35);
+  --green-hover: #8b5cf6;
+  --btn-primary-text: #080b0f;
   --red: #fb7185;
+  --red-soft: rgba(251, 113, 133, 0.12);
+  --red-border: rgba(251, 113, 133, 0.24);
   --red-shadow: rgba(251, 113, 133, 0.15);
   --yellow: #fbbf24;
+  --yellow-soft: rgba(251, 191, 36, 0.12);
+  --yellow-border: rgba(251, 191, 36, 0.24);
   --blue: #60a5fa;
+  --blue-soft: rgba(96, 165, 250, 0.12);
+  --blue-border: rgba(96, 165, 250, 0.24);
   --purple: #a78bfa;
   --indigo: #6366f1;
   --indigo-soft: rgba(99, 102, 241, 0.12);
   --indigo-glow: rgba(99, 102, 241, 0.18);
+  --meter-track: rgba(255, 255, 255, 0.08);
+  --graph-bg: radial-gradient(circle at top, rgba(167, 139, 250, 0.15), transparent 40%), linear-gradient(180deg, #10151c, #080b0f);
 }
 
 *,
@@ -193,14 +229,16 @@ body {
 
 .btn-primary {
   border-radius: 12px;
-  background: #6366f1;
-  color: #fff;
-  box-shadow: 0 12px 24px rgba(99, 102, 241, 0.22);
+  background: var(--green);
+  color: var(--btn-primary-text);
+  box-shadow: 0 12px 24px var(--green-shadow);
   padding: 0.95rem 1.15rem;
+  font-weight: 600;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .btn-primary:hover {
-  background: #4f52e0;
+  background: var(--green-hover);
 }
 
 .btn-ghost {
@@ -234,7 +272,7 @@ body {
 .status-pill,
 .tag,
 .chip {
-  border: 1px solid rgba(77, 255, 145, 0.24);
+  border: 1px solid var(--green-border);
   background: var(--green-soft);
   color: var(--green);
 }

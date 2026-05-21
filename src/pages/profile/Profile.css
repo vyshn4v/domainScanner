@@ -135,11 +135,11 @@
 .profile-btn--primary {
     background: var(--green);
     border-color: var(--green);
-    color: #fff;
+    color: var(--btn-primary-text);
 }
 
 .profile-btn--primary:hover {
-    background: rgba(52, 211, 153, 0.88);
+    background: var(--green-hover);
 }
 
 .profile-btn--danger {

@@ -1,5 +1,6 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { useNavigate } from "react-router";
+import axios from "axios";
 import { Button } from "../../components/ui/Button";
 import { NewScanModal } from "./components/NewScanModal";
 import { ScanRequestsTable } from "./components/ScanRequestsTable";
@@ -14,6 +15,9 @@ export default function ScanRequests({
 }) {
   const navigate = useNavigate();
   const [scans, setScans] = useState<ScanRequest[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState<number>(() => {
     const saved = localStorage.getItem("scanRequests_pageSize");
@@ -24,43 +28,166 @@ export default function ScanRequests({
   const [showBanner, setShowBanner] = useState(
     () => localStorage.getItem("sr_failedBannerDismissed") !== "1",
   );
+  const [statusFilter, setStatusFilter] = useState("all");
+
+  const [sortField, setSortField] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const dismissBanner = () => {
     localStorage.setItem("sr_failedBannerDismissed", "1");
     setShowBanner(false);
   };
 
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+      setCurrentPage(1);
+    }, 300); // 300ms delay to wait until user stops typing
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchQuery]);
+
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
+
+  const sortedScans = useMemo(() => {
+    if (!sortField) return scans;
+    const sorted = [...scans];
+    sorted.sort((a, b) => {
+      let valA: any = "";
+      let valB: any = "";
+
+      if (sortField === "id") {
+        valA = Number(a.id) || 0;
+        valB = Number(b.id) || 0;
+      } else if (sortField === "domain") {
+        valA = a.domain ?? a.requestedFor ?? "";
+        valB = b.domain ?? b.requestedFor ?? "";
+      } else if (sortField === "type") {
+        valA = a.scanType ?? a.type ?? "";
+        valB = b.scanType ?? b.type ?? "";
+      } else if (sortField === "createdAt" || sortField === "updatedAt") {
+        valA = a[sortField as "createdAt" | "updatedAt"] ? new Date(a[sortField as "createdAt" | "updatedAt"]!).getTime() : 0;
+        valB = b[sortField as "createdAt" | "updatedAt"] ? new Date(b[sortField as "createdAt" | "updatedAt"]!).getTime() : 0;
+      } else if (sortField === "status") {
+        valA = a.status ?? "";
+        valB = b.status ?? "";
+      } else {
+        valA = (a[sortField as keyof ScanRequest] || "").toString();
+        valB = (b[sortField as keyof ScanRequest] || "").toString();
+      }
+
+      if (typeof valA === "number" && typeof valB === "number") {
+        return sortDirection === "asc" ? valA - valB : valB - valA;
+      }
+
+      const strA = valA.toString().toLowerCase();
+      const strB = valB.toString().toLowerCase();
+      if (strA < strB) return sortDirection === "asc" ? -1 : 1;
+      if (strA > strB) return sortDirection === "asc" ? 1 : -1;
+      return 0;
+    });
+    return sorted;
+  }, [scans, sortField, sortDirection]);
+
+  const filteredScans = useMemo(() => {
+    if (statusFilter === "all") return sortedScans;
+    return sortedScans.filter(
+      (scan) => (scan.status ?? "").toLowerCase() === statusFilter.toLowerCase(),
+    );
+  }, [sortedScans, statusFilter]);
+
   const totalPages = useMemo(
-    () => Math.max(1, Math.ceil(scans.length / pageSize)),
-    [scans.length, pageSize],
+    () => Math.max(1, Math.ceil(totalCount / pageSize)),
+    [totalCount, pageSize],
   );
 
-  const currentScans = useMemo(
-    () => scans.slice((currentPage - 1) * pageSize, currentPage * pageSize),
-    [scans, currentPage, pageSize],
-  );
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+    setCurrentPage(1);
+  };
 
-  const fetchScans = () => {
+  const fetchScans = (
+    queryVal = debouncedSearchQuery,
+    pageVal = currentPage,
+    sizeVal = pageSize,
+    statusVal = statusFilter
+  ) => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     setIsRefreshing(true);
-    api.get<ScanRequest[]>("/scan")
+    const offset = (pageVal - 1) * sizeVal;
+
+    let apiSearch = queryVal;
+    if (statusVal !== "all" && !queryVal.trim()) {
+      apiSearch = statusVal;
+    }
+
+    api.get<{ scanlist: ScanRequest[]; totalCount: number }>("/scan", {
+      signal: controller.signal,
+      params: {
+        search: apiSearch.trim() || undefined,
+        offset,
+        limit: sizeVal
+      }
+    })
       .then((response) => {
-        const data = response.data || [];
-        setScans(data);
+        if (controller.signal.aborted) return;
+        const data = response.data || { scanlist: [], totalCount: 0 };
+        setScans(data.scanlist || []);
+        setTotalCount(data.totalCount || 0);
       })
       .catch((err) => {
+        if (axios.isCancel(err) || err?.name === "CanceledError") {
+          return;
+        }
+        if (controller.signal.aborted) return;
         console.error("Failed to fetch scans:", err);
+        setScans([]);
+        setTotalCount(0);
       })
       .finally(() => {
+        if (controller.signal.aborted) return;
         setIsRefreshing(false);
       });
   };
 
   useEffect(() => {
-    fetchScans();
-  }, []);
+    fetchScans(debouncedSearchQuery, currentPage, pageSize, statusFilter);
+  }, [debouncedSearchQuery, currentPage, pageSize, statusFilter]);
+
+  useEffect(() => {
+    const hasActiveScans = scans.some(
+      (scan) => scan.status === "queued" || scan.status === "running"
+    );
+
+    if (!hasActiveScans) return;
+
+    const interval = setInterval(() => {
+      fetchScans(debouncedSearchQuery, currentPage, pageSize, statusFilter);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [scans, debouncedSearchQuery, currentPage, pageSize, statusFilter]);
 
   const handleNewRequest = () => {
-    fetchScans();
+    fetchScans(debouncedSearchQuery, 1, pageSize);
     setCurrentPage(1);
   };
 
@@ -70,12 +197,30 @@ export default function ScanRequests({
     setCurrentPage(1);
   };
 
-  const handleRescan = (id: string) => {
-    setScans((current) =>
-      current.map((request) =>
-        request.id === id ? { ...request, status: "queued" } : request,
-      ),
-    );
+  const handleRescan = async (id: string) => {
+    const scanObj = scans.find((s) => String(s.id) === String(id));
+    if (!scanObj) return;
+    const target = scanObj.domain ?? scanObj.requestedFor ?? "";
+    const rawType = scanObj.scanType ?? scanObj.type ?? "";
+    const apiType = rawType.toLowerCase().includes("web") ? "web" : "port";
+
+    try {
+      setScans((current) =>
+        current.map((request) =>
+          String(request.id) === String(id) ? { ...request, status: "queued" } : request,
+        ),
+      );
+
+      await api.post(`/scan/${apiType}/${encodeURIComponent(target.trim())}`, {
+        domain: target.trim(),
+        scanOptions: scanObj.scanOptions || [],
+      });
+
+      fetchScans(debouncedSearchQuery, currentPage, pageSize);
+    } catch (err) {
+      console.error("Failed to trigger rescan:", err);
+      fetchScans(debouncedSearchQuery, currentPage, pageSize);
+    }
   };
 
   const handleView = (_scanType: string, id: string) => {
@@ -108,7 +253,7 @@ export default function ScanRequests({
             <Button
               variant="ghost"
               size="sm"
-              onClick={fetchScans}
+              onClick={() => fetchScans()}
               disabled={isRefreshing}
               className="sr-refresh-btn"
               title="Refresh"
@@ -165,15 +310,81 @@ export default function ScanRequests({
           </div>
         )}
 
+        <div className="sr-toolbar">
+          <div className="sr-search-container">
+            <svg
+              className="sr-search-icon"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input
+              type="text"
+              className="sr-search-input"
+              placeholder="Search by Scan ID, domain, type or status..."
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+              }}
+            />
+            {searchQuery && (
+              <button
+                className="sr-search-clear"
+                onClick={() => {
+                  setSearchQuery("");
+                  setDebouncedSearchQuery("");
+                  setCurrentPage(1);
+                }}
+                title="Clear search"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+
+          <div className="sr-filter-container">
+            <label htmlFor="statusFilterSelect" className="sr-filter-label">
+              Status:
+            </label>
+            <select
+              id="statusFilterSelect"
+              className="sr-filter-dropdown"
+              value={statusFilter}
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
+                setCurrentPage(1);
+              }}
+            >
+              <option value="all">All Statuses</option>
+              <option value="queued">Queued</option>
+              <option value="running">Running</option>
+              <option value="completed">Completed</option>
+              <option value="failed">Failed</option>
+              <option value="scheduled">Scheduled</option>
+            </select>
+          </div>
+        </div>
+
         <ScanRequestsTable
-          scans={currentScans}
+          scans={filteredScans}
           onRescan={handleRescan}
           onView={handleView}
+          sortField={sortField}
+          sortDirection={sortDirection}
+          onSort={handleSort}
         />
 
         <div className="sr-pagination">
           <p className="sr-pagination-info">
-            Showing {currentScans?.length} of {scans?.length} results
+            Showing {filteredScans?.length} of {totalCount} results
           </p>
           <div className="sr-pagination-actions">
             <button
@@ -198,7 +409,9 @@ export default function ScanRequests({
           </div>
         </div>
 
-        <p className="sr-footer-count">{scans?.length} total requests</p>
+        <p className="sr-footer-count">
+          {searchQuery || statusFilter !== "all" ? `${totalCount} found` : `${totalCount} total requests`}
+        </p>
       </div>
 
       {showModal && (

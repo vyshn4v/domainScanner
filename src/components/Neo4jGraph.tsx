@@ -60,18 +60,6 @@ type Props = {
   setSelectedNode: Dispatch<SetStateAction<SelectedNode | null>>;
 };
 
-// function nodeBackground(type: GraphNode["type"]) {
-//   if (type === "user") return "#0d9488";
-//   if (type === "scan") return "#2563eb";
-//   return "#c2410c";
-// }
-
-// function nodeBorder(type: GraphNode["type"]) {
-//   if (type === "user") return "#14b8a6";
-//   if (type === "scan") return "#60a5fa";
-//   return "#fb923c";
-// }
-
 export function Neo4jGraph({
   dashboardData,
   selectedNode,
@@ -186,7 +174,7 @@ export function Neo4jGraph({
             dx="0"
             dy="0"
             stdDeviation="6"
-            floodColor="#38bdf8"
+            floodColor="var(--green)"
             floodOpacity="0.3"
           />
         </filter>
@@ -248,7 +236,7 @@ export function Neo4jGraph({
               cy={node.y}
               r={radius}
               fill={nodeFill(node.type)}
-              stroke={active ? "#34d399" : nodeStroke(node.type)}
+              stroke={active ? "var(--green)" : nodeStroke(node.type)}
               strokeWidth={active ? 4 : 3}
               filter={active ? "url(#node-glow)" : undefined}
             />

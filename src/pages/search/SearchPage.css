@@ -115,22 +115,22 @@
 }
 
 .sp-control input:focus {
-  outline: 2px solid rgba(52, 211, 153, 0.35);
+  outline: 2px solid var(--green-border-strong);
   outline-offset: 2px;
 }
 
 .sp-control button {
   border: none;
   background: var(--green);
-  color: #ffffff;
+  color: var(--btn-primary-text);
   cursor: pointer;
   font-weight: 700;
   padding: 0 1.15rem;
-  box-shadow: 0 12px 24px rgba(52, 211, 153, 0.14);
+  box-shadow: 0 12px 24px var(--green-shadow);
 }
 
 .sp-control button:hover {
-  background: rgba(52, 211, 153, 0.88);
+  background: var(--green-hover);
 }
 
 .sp-form-meta,

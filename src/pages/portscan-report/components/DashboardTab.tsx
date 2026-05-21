@@ -12,20 +12,39 @@ import {
   ZAxis,
 } from "recharts";
 import type { PortScanData } from "../portScanData";
+import { useTheme } from "../../../components/util/theme";
 
-const MODERN_COLORS = {
-  primary: "#3b82f6", // blue-500
-  secondary: "#8b5cf6", // violet-500
-  accent: "#10b981", // emerald-500
-  danger: "#ef4444", // red-500
-  success: "#10b981", // emerald-500
-  warning: "#f59e0b", // amber-500
-  info: "#06b6d4", // cyan-500
-  background: "var(--surface)",
-  surface: "var(--raised)",
+const THEME_COLORS = {
+  dark: {
+    primary: "#60a5fa",
+    secondary: "#a78bfa",
+    accent: "#a78bfa",
+    danger: "#fb7185",
+    success: "#a78bfa",
+    warning: "#fbbf24",
+    info: "#a78bfa",
+    background: "#080b0f",
+    surface: "#10151c",
+    raised: "#151b24",
+  },
+  light: {
+    primary: "#1d4ed8",
+    secondary: "#7c3aed",
+    accent: "#6d28d9",
+    danger: "#b91c1c",
+    success: "#6d28d9",
+    warning: "#b45309",
+    info: "#6d28d9",
+    background: "#f4f5f7",
+    surface: "#ffffff",
+    raised: "#f8fafc",
+  },
 };
 
 function ServiceRiskChart({ data }: { data: PortScanData }) {
+  const { actualTheme } = useTheme();
+  const colors = THEME_COLORS[actualTheme];
+
   const chartData = [...(data.graph_data.service_risk_chart || [])]
     .sort((a, b) => b.risk_score - a.risk_score)
     .slice(0, 6)
@@ -37,9 +56,9 @@ function ServiceRiskChart({ data }: { data: PortScanData }) {
     }));
 
   const getRiskColor = (score: number) => {
-    if (score >= 80) return MODERN_COLORS.danger;
-    if (score >= 60) return MODERN_COLORS.warning;
-    return MODERN_COLORS.info;
+    if (score >= 80) return colors.danger;
+    if (score >= 60) return colors.warning;
+    return colors.info;
   };
 
   const renderPoint = ({ cx, cy, payload }: any) => {
@@ -108,7 +127,7 @@ function ServiceRiskChart({ data }: { data: PortScanData }) {
           <ZAxis dataKey="count" range={[100, 260]} />
           <ReferenceLine
             y={75}
-            stroke={MODERN_COLORS.warning}
+            stroke={colors.warning}
             strokeDasharray="4 4"
             label={{
               value: "High risk",
@@ -141,6 +160,9 @@ function ServiceRiskChart({ data }: { data: PortScanData }) {
 }
 
 function RiskTrendChart({ data }: { data: PortScanData }) {
+  const { actualTheme } = useTheme();
+  const colors = THEME_COLORS[actualTheme];
+
   const chartData = data.graph_data?.risk_trend || [];
 
   if (chartData.length === 0) {
@@ -165,10 +187,10 @@ function RiskTrendChart({ data }: { data: PortScanData }) {
   const trendSymbol = delta > 0 ? "▲" : delta < 0 ? "▼" : "▶";
   const riskColor =
     latestRisk >= 75
-      ? MODERN_COLORS.danger
+      ? colors.danger
       : latestRisk >= 50
-        ? MODERN_COLORS.warning
-        : MODERN_COLORS.success;
+        ? colors.warning
+        : colors.success;
 
   return (
     <div className="dr-chart-card dr-chart-card--clean">
@@ -204,12 +226,12 @@ function RiskTrendChart({ data }: { data: PortScanData }) {
             <linearGradient id="riskGradient" x1="0" y1="0" x2="0" y2="1">
               <stop
                 offset="5%"
-                stopColor={MODERN_COLORS.danger}
+                stopColor={colors.danger}
                 stopOpacity={0.35}
               />
               <stop
                 offset="95%"
-                stopColor={MODERN_COLORS.danger}
+                stopColor={colors.danger}
                 stopOpacity={0.08}
               />
             </linearGradient>
@@ -238,7 +260,7 @@ function RiskTrendChart({ data }: { data: PortScanData }) {
           />
           <ReferenceLine
             y={75}
-            stroke={MODERN_COLORS.warning}
+            stroke={colors.warning}
             strokeDasharray="4 4"
             label={{
               value: "High risk",
