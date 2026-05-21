@@ -80,37 +80,20 @@ export function ScanRequestRow({
         {/* <span className={`sr-sev ${SEV_CFG[request.severity].cls}`}>
           {SEV_CFG[request.severity].label}
         </span> */}
-        <span className={`sr-badge ${status.badgeCls}`}>
-          {status?.dot && <span className={`sr-dot ${status.dot}`} />}
-          {status?.label}
-        </span>
-        <div className="sr-actions">
-          <button
-            className="sr-icon-btn"
-            title={
-              request.status === "completed"
-                ? "View report"
-                : "Not yet available"
-            }
-            onClick={handleViewClick}
-          >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-              <circle cx="12" cy="12" r="3" />
-            </svg>
-          </button>
-          {options.length > 0 && (
+        <div className="sr-cell-trailing">
+          <span className={`sr-badge ${status.badgeCls}`}>
+            {status?.dot && <span className={`sr-dot ${status.dot}`} />}
+            {status?.label}
+          </span>
+          <div className="sr-actions">
             <button
               className="sr-icon-btn"
-              title="View scan options"
-              onClick={() => setShowOptions(true)}
+              title={
+                request.status === "completed"
+                  ? "View report"
+                  : "Not yet available"
+              }
+              onClick={handleViewClick}
             >
               <svg
                 width="14"
@@ -119,35 +102,54 @@ export function ScanRequestRow({
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
               >
-                <line x1="8" y1="6" x2="21" y2="6" />
-                <line x1="8" y1="12" x2="21" y2="12" />
-                <line x1="8" y1="18" x2="21" y2="18" />
-                <line x1="3" y1="6" x2="3.01" y2="6" />
-                <line x1="3" y1="12" x2="3.01" y2="12" />
-                <line x1="3" y1="18" x2="3.01" y2="18" />
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
               </svg>
             </button>
-          )}
-          <button
-            className="sr-icon-btn sr-icon-btn--rescan"
-            title="Rescan"
-            onClick={() => onRescan(request.id)}
-          >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
+            {options.length > 0 && (
+              <button
+                className="sr-icon-btn"
+                title="View scan options"
+                onClick={() => setShowOptions(true)}
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="8" y1="6" x2="21" y2="6" />
+                  <line x1="8" y1="12" x2="21" y2="12" />
+                  <line x1="8" y1="18" x2="21" y2="18" />
+                  <line x1="3" y1="6" x2="3.01" y2="6" />
+                  <line x1="3" y1="12" x2="3.01" y2="12" />
+                  <line x1="3" y1="18" x2="3.01" y2="18" />
+                </svg>
+              </button>
+            )}
+            <button
+              className="sr-icon-btn sr-icon-btn--rescan"
+              title="Rescan"
+              onClick={() => onRescan(request.id)}
             >
-              <polyline points="1 4 1 10 7 10" />
-              <path d="M3.51 15a9 9 0 1 0 .49-4.95" />
-            </svg>
-          </button>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <polyline points="1 4 1 10 7 10" />
+                <path d="M3.51 15a9 9 0 1 0 .49-4.95" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 

@@ -22,6 +22,9 @@
   --yellow: #fbbf24;
   --blue: #60a5fa;
   --purple: #a78bfa;
+  --indigo: #6366f1;
+  --indigo-soft: rgba(99, 102, 241, 0.12);
+  --indigo-glow: rgba(99, 102, 241, 0.18);
 }
 
 html.light {
@@ -60,6 +63,9 @@ html.dark {
   --yellow: #fbbf24;
   --blue: #60a5fa;
   --purple: #a78bfa;
+  --indigo: #6366f1;
+  --indigo-soft: rgba(99, 102, 241, 0.12);
+  --indigo-glow: rgba(99, 102, 241, 0.18);
 }
 
 *,
@@ -187,14 +193,14 @@ body {
 
 .btn-primary {
   border-radius: 12px;
-  background: var(--green);
+  background: #6366f1;
   color: #fff;
-  box-shadow: 0 12px 24px rgba(52, 211, 153, 0.14);
+  box-shadow: 0 12px 24px rgba(99, 102, 241, 0.22);
   padding: 0.95rem 1.15rem;
 }
 
 .btn-primary:hover {
-  background: rgba(52, 211, 153, 0.9);
+  background: #4f52e0;
 }
 
 .btn-ghost {
@@ -240,4 +246,37 @@ body {
   height: 6px;
   border-radius: 50%;
   background: var(--green);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Global scrollbar
+───────────────────────────────────────────────────────────── */
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+/* Chrome / Safari / Edge */
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 99px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--faint);
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
 }
