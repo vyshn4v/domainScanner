@@ -1,14 +1,14 @@
 export function SearchHeader() {
   return (
     <header className="sp-header">
-      <div>
-        <p className="sp-eyebrow">Domain scanner</p>
-        <h1>Domain reputation lookup</h1>
+      <div className="sp-header-top">
+        <p className="sp-eyebrow">Advanced Domain Intelligence</p>
+        <span className="sp-status">
+          <span />
+          Scanner ready
+        </span>
       </div>
-      <span className="sp-status">
-        <span />
-        Scanner ready
-      </span>
+      <h1>Domain Reputation Lookup</h1>
     </header>
   );
 }
