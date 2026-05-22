@@ -162,11 +162,25 @@ export function Navbar() {
                   Profile
                 </Link>
                 <Link
-                  to="/scan/lists"
+                  to="/"
                   className="navbar-menu-item"
                   onClick={closeProfileMenu}
                 >
                   Scan Requests
+                </Link>
+                <Link
+                  to="/scan/search"
+                  className="navbar-menu-item"
+                  onClick={closeProfileMenu}
+                >
+                  Domain Scanner
+                </Link>
+                <Link
+                  to="/?new=1"
+                  className="navbar-menu-item"
+                  onClick={closeProfileMenu}
+                >
+                  Port Assessment
                 </Link>
                 <button
                   type="button"

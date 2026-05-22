@@ -7,6 +7,11 @@ import type {
 } from "../../domain/scans/repository";
 import api from "../../core/api/axiosInstance";
 
+export type DashboardScanStats = {
+  totalScans: number;
+  byStatus: { status: string; count: number }[];
+};
+
 export class ScanHttpService implements ScanRepository {
   async list(params?: ScanQueryParams): Promise<ScanListResponse> {
     const response = await api.get<{
@@ -20,6 +25,11 @@ export class ScanHttpService implements ScanRepository {
       },
       signal: params?.signal,
     });
+    return response.data;
+  }
+
+  async getDashboardStats(): Promise<DashboardScanStats> {
+    const response = await api.get<DashboardScanStats>("/dashboard/scan-stats");
     return response.data;
   }
 

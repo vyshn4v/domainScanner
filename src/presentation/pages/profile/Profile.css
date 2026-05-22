@@ -5,8 +5,56 @@
     color: var(--text);
 }
 
+.profile-tabs-container {
+    width: min(1024px, 100%);
+    margin: 0 auto 2rem;
+    display: flex;
+    gap: 1.5rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.profile-tab {
+    background: transparent;
+    border: none;
+    padding: 0.75rem 0.5rem;
+    color: var(--muted);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.3s ease;
+}
+
+.profile-tab:hover {
+    color: var(--text);
+    background: transparent;
+}
+
+.profile-tab::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; /* aligns with the container border */
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--text);
+    transform: scaleX(0);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.profile-tab--active {
+    color: var(--text);
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.profile-tab--active::after {
+    transform: scaleX(1);
+}
+
 .profile-panel {
-    width: min(860px, 100%);
+    width: min(1024px, 100%);
     margin: 0 auto;
     padding: 1.5rem;
     border: 1px solid var(--border);

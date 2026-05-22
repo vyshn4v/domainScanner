@@ -1,8 +1,9 @@
 import { useEffect, useState, useMemo, useRef } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useLocation } from "react-router";
 import { Button } from "../../components/ui/Button";
 import { NewScanModal } from "./components/NewScanModal";
 import { ScanRequestsTable } from "./components/ScanRequestsTable";
+import { ScanStatsGrid } from "./components/ScanStatsGrid";
 import type { ScanRequest } from "./types";
 import "./ScanRequests.css";
 import { ScanHttpService } from "../../../infrastructure/http/scanHttpService";
@@ -13,6 +14,7 @@ const scanService = new ScanHttpService();
 export default function ScanRequests() {
   const { theme } = useTheme();
   const navigate = useNavigate();
+  const location = useLocation();
   const [scans, setScans] = useState<ScanRequest[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
@@ -28,6 +30,7 @@ export default function ScanRequests() {
     () => localStorage.getItem("sr_failedBannerDismissed") !== "1",
   );
   const [statusFilter, setStatusFilter] = useState("all");
+  const [refreshStatsKey, setRefreshStatsKey] = useState(0);
 
   const [sortField, setSortField] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
@@ -55,6 +58,13 @@ export default function ScanRequests() {
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (location.search.includes("new=1")) {
+      setShowModal(true);
+      navigate(location.pathname, { replace: true });
+    }
+  }, [location, navigate]);
 
   const sortedScans = useMemo(() => {
     if (!sortField) return scans;
@@ -124,13 +134,14 @@ export default function ScanRequests() {
     sizeVal = pageSize,
     statusVal = statusFilter
   ) => {
+    setIsRefreshing(true);
+    setRefreshStatsKey(prev => prev + 1);
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
     const controller = new AbortController();
     abortControllerRef.current = controller;
 
-    setIsRefreshing(true);
     const offset = (pageVal - 1) * sizeVal;
 
     let apiSearch = queryVal;
@@ -168,19 +179,7 @@ export default function ScanRequests() {
     fetchScans(debouncedSearchQuery, currentPage, pageSize, statusFilter);
   }, [debouncedSearchQuery, currentPage, pageSize, statusFilter]);
 
-  useEffect(() => {
-    const hasActiveScans = scans.some(
-      (scan) => scan.status === "queued" || scan.status === "running"
-    );
 
-    if (!hasActiveScans) return;
-
-    const interval = setInterval(() => {
-      fetchScans(debouncedSearchQuery, currentPage, pageSize, statusFilter);
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [scans, debouncedSearchQuery, currentPage, pageSize, statusFilter]);
 
   const handleNewRequest = () => {
     fetchScans(debouncedSearchQuery, 1, pageSize);
@@ -273,6 +272,8 @@ export default function ScanRequests() {
             </Button>
           </div>
         </div>
+
+        <ScanStatsGrid refreshTrigger={refreshStatsKey} />
 
         {showBanner && (
           <div className="sr-info-banner" role="status">

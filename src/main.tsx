@@ -21,7 +21,11 @@ const Router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <SearchPage />,
+        element: (
+          <AuthGuard>
+            <ScanRequests />
+          </AuthGuard>
+        ),
       },
 
       {
