@@ -1,68 +1,43 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { PlanHttpService } from "../../../../infrastructure/http/planHttpService";
+import type { PlanEntity } from "../../../../domain/plans/entities";
 import "./PlanSelection.css";
 
-const PLANS = [
-  {
-    id: "hobby",
-    name: "Hobby",
-    price: "0",
-    features: [
-      "Up to 5 basic web scans per month",
-      "Standard vulnerability detection",
-      "Community support",
-      "7-day data retention"
-    ],
-    buttonText: "Current Plan",
-    isCurrent: true,
-  },
-  {
-    id: "pro",
-    name: "Pro",
-    price: "29",
-    isPopular: true,
-    features: [
-      "Unlimited advanced web scans",
-      "Deep AI risk analysis & trends",
-      "Continuous background monitoring",
-      "Priority queue & email support",
-      "Export PDF/CSV reports"
-    ],
-    buttonText: "Upgrade to Pro",
-    isCurrent: false,
-  },
-  {
-    id: "enterprise",
-    name: "Enterprise",
-    price: "99",
-    features: [
-      "Everything in Pro",
-      "Custom integrations & Webhooks",
-      "White-labeled PDF reports",
-      "Dedicated account manager",
-      "SSO & advanced team roles"
-    ],
-    buttonText: "Contact Sales",
-    isCurrent: false,
-  }
-];
+const planService = new PlanHttpService();
 
 export function PlanSelection() {
-  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [plans, setPlans] = useState<PlanEntity[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadingPlan, setLoadingPlan] = useState<number | null>(null);
 
-  const handleSelectPlan = (planId: string) => {
-    if (planId === "hobby") return;
+  useEffect(() => {
+    async function loadPlans() {
+      try {
+        const fetchedPlans = await planService.getPlans();
+        setPlans(fetchedPlans);
+      } catch (error) {
+        console.error("Failed to fetch plans:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadPlans();
+  }, []);
+
+  const handleSelectPlan = (planId: number) => {
+    // If it's the free/hobby plan (id usually 1 or 0), handle differently if needed
     setLoadingPlan(planId);
     
     // Simulate an API call / redirect to Stripe checkout
     setTimeout(() => {
       setLoadingPlan(null);
-      if (planId === "enterprise") {
-        window.location.href = "mailto:sales@domainscanner.com?subject=Enterprise Plan Inquiry";
-      } else {
-        alert("Redirecting to checkout for the Pro plan...");
-      }
+      alert("Redirecting to checkout...");
     }, 800);
   };
+
+  if (loading) {
+    return <div className="ps-loading">Loading plans...</div>;
+  }
 
   return (
     <section className="ps-root">
@@ -72,16 +47,18 @@ export function PlanSelection() {
       </div>
 
       <div className="ps-grid">
-        {PLANS.map((plan) => {
-          const isPro = plan.id === "pro";
+        {plans.map((plan) => {
+          const isPro = plan.planName.toLowerCase().includes("pro");
+          const isCurrent = false; // TODO: Implement current plan logic based on user subscription
+          
           return (
             <div 
               key={plan.id} 
               className={`ps-card ${isPro ? "ps-card--pro" : ""}`}
             >
-              {plan.isPopular && <span className="ps-badge">Most Popular</span>}
+              {isPro && <span className="ps-badge">Most Popular</span>}
               
-              <h3 className="ps-plan-name">{plan.name}</h3>
+              <h3 className="ps-plan-name">{plan.planName}</h3>
               <div className="ps-plan-price">
                 <span className="ps-plan-currency">$</span>
                 {plan.price}
@@ -89,22 +66,34 @@ export function PlanSelection() {
               </div>
               
               <ul className="ps-features">
-                {plan.features.map((feature, i) => (
-                  <li key={i} className="ps-feature">
+                  <li className="ps-feature">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="20 6 9 17 4 12"></polyline>
                     </svg>
-                    {feature}
+                    {plan.requestPerPlan} requests per plan
                   </li>
-                ))}
+                  <li className="ps-feature">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    {plan.planValidityDays} days validity
+                  </li>
+                  {plan.isPermanentPlan && (
+                    <li className="ps-feature">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                      Permanent Plan
+                    </li>
+                  )}
               </ul>
               
               <button 
-                className={`ps-btn ${isPro ? "ps-btn--pro" : plan.isCurrent ? "" : "ps-btn--primary"}`}
+                className={`ps-btn ${isPro ? "ps-btn--pro" : isCurrent ? "" : "ps-btn--primary"}`}
                 onClick={() => handleSelectPlan(plan.id)}
-                disabled={plan.isCurrent || loadingPlan === plan.id}
+                disabled={isCurrent || loadingPlan === plan.id}
               >
-                {loadingPlan === plan.id ? "Processing..." : plan.buttonText}
+                {loadingPlan === plan.id ? "Processing..." : isCurrent ? "Current Plan" : "Select Plan"}
               </button>
             </div>
           );

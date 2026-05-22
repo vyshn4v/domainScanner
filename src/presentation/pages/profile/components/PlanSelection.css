@@ -74,6 +74,15 @@
   100% { filter: hue-rotate(360deg); }
 }
 
+.ps-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  color: var(--muted);
+  font-size: 1.1rem;
+}
+
 .ps-card--pro::after {
   content: "";
   position: absolute;

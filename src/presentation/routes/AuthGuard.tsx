@@ -5,7 +5,7 @@ import { useAuth } from "../../core/hooks/useAuth";
 
 import type { ReactNode } from "react";
 
-const allowedPaths = ["/"];
+const allowedPaths: string[] = [];
 
 export function AuthGuard({ children }: { children?: ReactNode }) {
   const { user, loading } = useAuth();
