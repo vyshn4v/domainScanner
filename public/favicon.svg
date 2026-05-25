@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#18181b" />
+      <stop offset="100%" stop-color="#09090b" />
+    </linearGradient>
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f43f5e" />
+      <stop offset="50%" stop-color="#d946ef" />
+      <stop offset="100%" stop-color="#8b5cf6" />
+    </linearGradient>
+  </defs>
+  
+  <rect width="120" height="120" rx="28" fill="url(#bgGrad)" />
+  
+  <!-- Shield contour -->
+  <path d="M60 22L28 36V60C28 80 41 98 60 105C79 98 92 80 92 60V36L60 22Z" fill="none" stroke="url(#shieldGrad)" stroke-width="9" stroke-linejoin="round" />
+  
+  <!-- Inner core -->
+  <circle cx="60" cy="56" r="10" fill="#38bdf8" />
+  
+  <!-- Scanner arc -->
+  <path d="M46 56A14 14 0 0 1 74 56" fill="none" stroke="#38bdf8" stroke-width="6" stroke-linecap="round" />
+</svg>
