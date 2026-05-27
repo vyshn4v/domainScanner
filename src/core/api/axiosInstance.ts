@@ -20,7 +20,7 @@ api.interceptors.request.use((config) => {
         config.headers["useremail"] = user.email;
       }
       if (user?.id) {
-        config.headers["userid"] = user.id.toString();
+        config.headers["id"] = user.id.toString();
       }
     } catch (error) {
       console.error("Failed to parse user from sessionStorage", error);
