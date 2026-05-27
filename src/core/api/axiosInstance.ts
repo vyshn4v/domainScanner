@@ -34,14 +34,21 @@ api.interceptors.response.use(
   (error) => {
     console.error("API Error:", error);
     
-    if (error.response && error.response.status === 401) {
-      const url = error.config?.url || "";
-      const isExcluded = excludedApiPaths.some(path => url.includes(path));
-      
-      if (!isExcluded) {
-        console.warn("Unauthorized - Redirecting to SSO");
-        window.location.href = `${import.meta.env.VITE_SSO_URL}/auth/validate?redirect=${encodeURIComponent(window.location.origin)}`;
-        // Return a pending promise so we don't trigger subsequent .catch blocks while redirecting
+    if (error.response) {
+      if (error.response.status === 401) {
+        const url = error.config?.url || "";
+        const isExcluded = excludedApiPaths.some(path => url.includes(path));
+        
+        if (!isExcluded) {
+          console.warn("Unauthorized - Redirecting to SSO");
+          window.location.href = `${import.meta.env.VITE_SSO_URL}/auth/validate?redirect=${encodeURIComponent(window.location.origin)}`;
+          // Return a pending promise so we don't trigger subsequent .catch blocks while redirecting
+          return new Promise(() => {});
+        }
+      } else if (error.response.status === 403) {
+        console.warn("Forbidden - Clearing session and refreshing page");
+        sessionStorage.removeItem("user");
+        window.location.reload();
         return new Promise(() => {});
       }
     }
