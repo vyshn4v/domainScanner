@@ -40,5 +40,5 @@ jobs:
       - name: Upload dist
         run: |
           scp -i ~/.ssh/id_rsa -r \
-                dist/*
+                dist/* \ 
                 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/home/ubuntu/domainScanner/
