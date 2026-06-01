@@ -1,44 +1,49 @@
-export interface ScanOptionEntry {
-  flag: string;
+export interface ScanMode {
+  value: string;
+  label: string;
   description: string;
+  badge?: string;
 }
 
-export const NMAP_OPTIONS: ScanOptionEntry[] = [
-  { flag: "-v", description: "Verbose logging" },
-  { flag: "-r", description: "Resolve DNS names" },
-  { flag: "-o", description: "Output results to file" },
-  { flag: "-f", description: "Fast scan mode" },
-  { flag: "-sS", description: "SYN stealth scan" },
-  { flag: "-sT", description: "TCP connect scan" },
-  { flag: "-sU", description: "UDP scan" },
-  { flag: "-sV", description: "Version detection" },
-  { flag: "-O", description: "OS fingerprinting" },
-  { flag: "-A", description: "Aggressive scan (OS + version + scripts)" },
-  { flag: "-p-", description: "Scan all ports (1–65535)" },
-  { flag: "--top-ports", description: "Scan only top N ports" },
-  { flag: "--script", description: "Run NSE scripts" },
-  { flag: "--traceroute", description: "Trace network path" },
-  { flag: "--no-ping", description: "Skip host discovery" },
+/**
+ * SCAN MODE PRESETS
+ * Friendly definitions shown to the user in the UI.
+ * The actual nmap flags are resolved entirely on the backend consumer.
+ */
+export const SCAN_MODES: ScanMode[] = [
+  {
+    value: "quick",
+    label: "Quick",
+    description: "Top 100 ports only. Fastest option, good for a first look.",
+  },
+  {
+    value: "standard",
+    label: "Standard",
+    description: "Top 1000 most common ports. Balanced speed and coverage.",
+    badge: "Default",
+  },
+  {
+    value: "full",
+    label: "Full",
+    description: "All 65,535 ports scanned. Thorough but slower.",
+  },
+  {
+    value: "aggressive",
+    label: "Aggressive",
+    description: "All ports + OS detection + version + scripts. Can take 10–30 min.",
+    badge: "Slow",
+  },
+  {
+    value: "vulnerability",
+    label: "Vulnerability",
+    description: "Runs NSE vulnerability scripts on all ports. Best for security audits.",
+    badge: "Slow",
+  },
 ];
 
-export const WEB_AUDIT_OPTIONS: ScanOptionEntry[] = [
-  { flag: "--crawl", description: "Crawl web links and directories" },
-  { flag: "--xss", description: "Detect Cross-Site Scripting (XSS)" },
-  { flag: "--sql-injection", description: "Detect SQL Injection vulnerabilities" },
-  { flag: "--headers", description: "Verify secure HTTP response headers" },
-  { flag: "--ssl-ciphers", description: "Check SSL/TLS ciphers and protocols" },
-];
-
-export const SCAN_OPTIONS_BY_TYPE: Record<string, ScanOptionEntry[]> = {
-  "Vulnerability Scan": NMAP_OPTIONS,
-  "Web Audit": WEB_AUDIT_OPTIONS,
+export const SCAN_MODES_BY_TYPE: Record<string, ScanMode[]> = {
+  "Vulnerability Scan": SCAN_MODES,
+  "Web Audit": [],
 };
 
-export const SCAN_OPTIONS_MAP: Record<string, ScanOptionEntry> = {};
-[...NMAP_OPTIONS, ...WEB_AUDIT_OPTIONS].forEach((opt) => {
-  SCAN_OPTIONS_MAP[opt.flag] = opt;
-});
-
-export function getScanOptionDescription(flag: string): string {
-  return SCAN_OPTIONS_MAP[flag]?.description ?? flag;
-}
+export const DEFAULT_SCAN_MODE = "standard";
