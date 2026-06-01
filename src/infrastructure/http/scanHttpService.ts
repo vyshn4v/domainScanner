@@ -50,6 +50,10 @@ export class ScanHttpService implements ScanRepository {
     });
   }
 
+  async retry(id: string): Promise<void> {
+    await api.post(`/scan/retry/${id}`);
+  }
+
   async getById(id: string): Promise<ScanEntity | null> {
     try {
       const response = await api.get<ScanEntity>(`/scan/${id}`);

@@ -3,7 +3,6 @@ import toast from "react-hot-toast";
 import "./Profile.css";
 import api from "../../../core/api/axiosInstance";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
-import { PlanSelection } from "./components/PlanSelection";
 
 type SsoUser = {
   firstName?: string;
@@ -67,7 +66,6 @@ export default function Profile() {
   const displayName = getDisplayName(user);
   const initials = getInitials(user);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const [activeTab, setActiveTab] = useState<"account" | "plans">("account");
 
   const handleLogout = () => {
     if (user) {
@@ -88,23 +86,7 @@ export default function Profile() {
 
   return (
     <main className="profile-root">
-      <div className="profile-tabs-container">
-        <button
-          className={`profile-tab ${activeTab === "account" ? "profile-tab--active" : ""}`}
-          onClick={() => setActiveTab("account")}
-        >
-          Account Details
-        </button>
-        <button
-          className={`profile-tab ${activeTab === "plans" ? "profile-tab--active" : ""}`}
-          onClick={() => setActiveTab("plans")}
-        >
-          Plan & Billing
-        </button>
-      </div>
-
-      {activeTab === "account" && (
-        <div className="profile-panel">
+      <div className="profile-panel">
         <div className="profile-header">
           <div className="profile-avatar">
             {user?.pictureUrl ? (
@@ -161,10 +143,7 @@ export default function Profile() {
             Logout
           </button>
         </div>
-        </div>
-      )}
-
-      {activeTab === "plans" && <PlanSelection />}
+      </div>
 
       <ConfirmDialog
         open={showLogoutConfirm}

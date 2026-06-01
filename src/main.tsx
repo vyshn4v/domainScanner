@@ -13,6 +13,7 @@ import Profile from "./presentation/pages/profile/Profile.tsx";
 import RootErrorBoundary from "./presentation/pages/error/error.tsx";
 import { AuthGuard } from "./presentation/routes/AuthGuard.tsx";
 import { AuthProvider } from "./application/auth/AuthProvider.tsx";
+import Billing from "./presentation/pages/billing/Billing.tsx";
 const Router = createBrowserRouter([
   {
     path: "/",
@@ -59,6 +60,14 @@ const Router = createBrowserRouter([
         element: (
           <AuthGuard>
             <Profile />
+          </AuthGuard>
+        ),
+      },
+      {
+        path: "billing",
+        element: (
+          <AuthGuard>
+            <Billing />
           </AuthGuard>
         ),
       },

@@ -8,8 +8,9 @@ export type ScanStatus =
 export type ScanSeverity = "critical" | "high" | "medium" | "low" | "none";
 
 export interface ScanEntity {
-  id: string;
-  domain: string;
+  id: number;
+  scanId?: string;
+  domain?: string;
   requestedFor?: string;
   severity: ScanSeverity;
   status: ScanStatus;

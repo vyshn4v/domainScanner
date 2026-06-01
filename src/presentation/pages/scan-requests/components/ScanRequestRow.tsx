@@ -48,14 +48,19 @@ export function ScanRequestRow({
 
   const handleViewClick = () => {
     if (request.status === "completed") {
-      onView(scanType, request.id);
+      onView(scanType, request.scanId || String(request.id));
     } else {
       setToast("Report not available — scan is not yet completed");
       setTimeout(() => setToast(""), 3000);
     }
   };
   const status = STATUS_CFG[request.status] ?? STATUS_CFG.queued;
-  const scanType = request.scanType ?? request.type;
+  let scanType = request.scanType ?? request.type ?? "Vulnerability Scan";
+  if (scanType.toLowerCase() === "port") {
+    scanType = "Vulnerability Scan";
+  } else if (scanType.toLowerCase() === "web") {
+    scanType = "Web Audit";
+  }
   const target = request.domain ?? request.requestedFor ?? "";
   const formattedDate = request.createdAt
     ? new Date(request.createdAt).toLocaleDateString("en-GB")
@@ -65,7 +70,7 @@ export function ScanRequestRow({
   return (
     <>
       <div className="sr-table__row">
-        <span className="sr-cell-id">{"SCN-" + request.id}</span>
+        <span className="sr-cell-id" title={request.scanId || "SCN-" + request.id}>{request.scanId || "SCN-" + request.id}</span>
         <span className="sr-cell-target" title={target}>
           {target}
         </span>
@@ -134,7 +139,7 @@ export function ScanRequestRow({
             <button
               className="sr-icon-btn sr-icon-btn--rescan"
               title="Rescan"
-              onClick={() => onRescan(request.id)}
+              onClick={() => onRescan(request.scanId || String(request.id))}
             >
               <svg
                 width="14"

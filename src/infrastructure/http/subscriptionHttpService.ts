@@ -41,13 +41,10 @@ export interface CurrentSubscriptionResponse {
 }
 
 export class SubscriptionHttpService {
-  async createOrder(
-    planId: number,
-    billingCycle: "monthly" | "yearly" = "monthly",
-  ): Promise<CreateOrderResponse> {
+  async createOrder(planId: number): Promise<CreateOrderResponse> {
     const response = await api.post<CreateOrderResponse>(
       "/subscription/create-order",
-      { planId, billingCycle },
+      { planId },
     );
     return response.data;
   }

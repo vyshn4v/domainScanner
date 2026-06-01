@@ -31,8 +31,24 @@ export function NewScanModal({ onClose, onSubmit }: NewScanModalProps) {
   const [loading, setLoading] = useState(false);
 
   const submit = async () => {
-    if (!target.trim()) {
-      setError("Target domain or IP is required");
+    let clean = target.trim().toLowerCase();
+
+    // Remove http:// or https://
+    if (clean.startsWith("http://")) clean = clean.substring(7);
+    if (clean.startsWith("https://")) clean = clean.substring(8);
+
+    // Remove paths or trailing slashes
+    clean = clean.split("/")[0];
+
+    const domainRegex = /^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$/i;
+
+    if (!clean) {
+      setError("Target domain is required");
+      return;
+    }
+
+    if (clean !== "localhost" && !domainRegex.test(clean)) {
+      setError("Please enter a valid domain name");
       return;
     }
 
@@ -41,15 +57,20 @@ export function NewScanModal({ onClose, onSubmit }: NewScanModalProps) {
 
     try {
       await scanService.rescan({
-        domain: target.trim(),
+        domain: clean,
         scanType: type,
         scanOptions: selectedOptions,
       });
 
+      const now = new Date();
+      const pad = (n: number) => n.toString().padStart(2, '0');
+      const timestamp = `${pad(now.getMonth() + 1)}${now.getFullYear()}${pad(now.getDate())}${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+      
       onSubmit({
-        id: `SCN-${1050 + Math.floor(Math.random() * 900)}`,
-        domain: target.trim(),
-        requestedFor: target.trim(),
+        id: 0,
+        scanId: `SCN-${timestamp}${Math.floor(1000 + Math.random() * 9000)}`,
+        domain: clean,
+        requestedFor: clean,
         severity: "none",
         status: "queued",
         type,
@@ -61,7 +82,13 @@ export function NewScanModal({ onClose, onSubmit }: NewScanModalProps) {
       console.error(err);
       const message = err instanceof Error ? err.message : "Failed to schedule scan";
       const apiMessage = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
-      setError(apiMessage || message);
+      const status = (err as { response?: { status?: number } })?.response?.status;
+      
+      if (status === 429) {
+        setError("LIMIT_EXCEEDED");
+      } else {
+        setError(apiMessage || message);
+      }
     } finally {
       setLoading(false);
     }
@@ -84,20 +111,49 @@ export function NewScanModal({ onClose, onSubmit }: NewScanModalProps) {
         </div>
 
         <div className="sr-modal__body">
+          {error === "LIMIT_EXCEEDED" && (
+            <div className="sr-info-banner" style={{ background: "rgba(239, 68, 68, 0.1)", borderColor: "rgba(239, 68, 68, 0.2)", marginBottom: "1.5rem" }} role="alert">
+              <div className="sr-info-banner__icon" style={{ color: "#ef4444", background: "rgba(239, 68, 68, 0.1)" }}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="8" x2="12" y2="12" />
+                  <line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
+              </div>
+              <div className="sr-info-banner__body">
+                <span className="sr-info-banner__label" style={{ color: "#ef4444" }}>Daily Limit Exceeded</span>
+                <p className="sr-info-banner__text">
+                  You have reached your maximum allowed scans for today. Please check your active plan or try again tomorrow.
+                </p>
+              </div>
+            </div>
+          )}
+
           <div className="sr-field">
             <label className="sr-label">
               Target <span className="sr-required">*</span>
             </label>
             <input
-              className={`sr-input${error ? " sr-input--error" : ""}`}
-              placeholder="e.g. example.com or 10.0.0.1"
+              className={`sr-input${error && error !== "LIMIT_EXCEEDED" ? " sr-input--error" : ""}`}
+              placeholder="e.g. example.com"
               value={target}
               onChange={(e) => {
-                setTarget(e.target.value);
+                let val = e.target.value.toLowerCase();
+                if (val.startsWith("http://")) val = val.substring(7);
+                if (val.startsWith("https://")) val = val.substring(8);
+                if (val.includes("/")) val = val.split("/")[0];
+                
+                setTarget(val);
                 setError("");
               }}
             />
-            {error && <span className="sr-error-msg">{error}</span>}
+            {error && error !== "LIMIT_EXCEEDED" ? (
+              <span className="sr-error-msg">{error}</span>
+            ) : (
+              <span className="sr-info-text" style={{ fontSize: "0.8rem", color: "var(--text-secondary, #888)", marginTop: "6px", display: "block" }}>
+                Enter a valid domain name. We will automatically remove http:// and paths.
+              </span>
+            )}
           </div>
 
           <div className="sr-field">

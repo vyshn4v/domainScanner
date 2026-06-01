@@ -6,6 +6,9 @@ export interface PlanEntity {
   expiryDate: string | null;
   planValidityDays: number;
   price: number;
+  billingCycle: "monthly" | "yearly";
+  yearlyPrice?: number;
+  isCurrentPlan?: boolean;
   createdAt: string;
   updatedAt: string;
 }

@@ -16,11 +16,12 @@ api.interceptors.request.use((config) => {
   if (userStr) {
     try {
       const user = JSON.parse(userStr);
+      console.log("userDetails--->", user);
       if (user?.email) {
-        config.headers["useremail"] = user.email;
+        config.headers["x-user-email"] = user.email;
       }
-      if (user?.id) {
-        config.headers["id"] = user.id.toString();
+      if (user?.ssoUserId) {
+        config.headers["x-user-id"] = user.ssoUserId;
       }
     } catch (error) {
       console.error("Failed to parse user from sessionStorage", error);
@@ -33,12 +34,12 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     console.error("API Error:", error);
-    
+
     if (error.response) {
       if (error.response.status === 401) {
         const url = error.config?.url || "";
-        const isExcluded = excludedApiPaths.some(path => url.includes(path));
-        
+        const isExcluded = excludedApiPaths.some((path) => url.includes(path));
+
         if (!isExcluded) {
           console.warn("Unauthorized - Redirecting to SSO");
           window.location.href = `${import.meta.env.VITE_SSO_URL}/auth/validate?redirect=${encodeURIComponent(window.location.origin)}`;
