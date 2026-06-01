@@ -1076,6 +1076,84 @@
 }
 
 /* ─────────────────────────────────────────────────────────────
+   Scan Mode card picker in modal
+───────────────────────────────────────────────────────────── */
+.sr-mode-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+}
+
+.sr-mode-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: 0.65rem 0.8rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--raised);
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sr-mode-card:hover {
+    border-color: var(--border-hi);
+    background: var(--surface);
+}
+
+.sr-mode-card--active {
+    border-color: var(--green);
+    background: var(--green-soft);
+    box-shadow: 0 0 0 2px var(--green-shadow);
+}
+
+.sr-mode-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.4rem;
+}
+
+.sr-mode-card__label {
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.sr-mode-card__desc {
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 0.7rem;
+    color: var(--muted);
+    line-height: 1.4;
+    margin: 0;
+}
+
+.sr-mode-badge {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.sr-mode-badge--default {
+    background: var(--green-soft);
+    color: var(--green);
+    border: 1px solid var(--green-border);
+}
+
+.sr-mode-badge--slow {
+    background: var(--yellow-soft);
+    color: var(--yellow);
+    border: 1px solid rgba(251, 191, 36, 0.28);
+}
+
+/* ─────────────────────────────────────────────────────────────
    Form
 ───────────────────────────────────────────────────────────── */
 .sr-field-row {
