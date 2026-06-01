@@ -7,8 +7,8 @@ export default defineConfig({
   base: "./",
   plugins: [react(), babel({ presets: [reactCompilerPreset()] })],
   server: {
-    host: "app.vyshnavpc.local",
+    host: true,
     port: 5173,
-    allowedHosts: ["app.vyshnavpc.local"],
+    allowedHosts: ["app.vyshnavpc.local", "csekfrontend.vyshnavpc.local"],
   },
 });
