@@ -1,5 +1,5 @@
 import type { ScanRequest } from "../types";
-import { getScanOptionDescription } from "../../../../core/constants/scanOptionsConfig";
+import { SCAN_MODES } from "../../../../core/constants/scanOptionsConfig";
 import { useState } from "react";
 
 type ScanRequestRowProps = {
@@ -65,7 +65,9 @@ export function ScanRequestRow({
   const formattedDate = request.createdAt
     ? new Date(request.createdAt).toLocaleDateString("en-GB")
     : "-";
-  const options = request.scanOptions ?? [];
+  // scanOptions now stores the scanMode as a single-element array e.g. ["aggressive"]
+  const scanMode = (request.scanOptions ?? [])[0] ?? null;
+  const scanModeInfo = SCAN_MODES.find((m) => m.value === scanMode);
 
   return (
     <>
@@ -111,10 +113,10 @@ export function ScanRequestRow({
                 <circle cx="12" cy="12" r="3" />
               </svg>
             </button>
-            {options.length > 0 && (
+            {scanMode && (
               <button
                 className="sr-icon-btn"
-                title="View scan options"
+                title="View scan mode"
                 onClick={() => setShowOptions(true)}
               >
                 <svg
@@ -157,11 +159,11 @@ export function ScanRequestRow({
         </div>
       </div>
 
-      {showOptions && (
+      {showOptions && scanModeInfo && (
         <div className="sr-overlay" onClick={() => setShowOptions(false)}>
           <div className="sr-opt-popup" onClick={(e) => e.stopPropagation()}>
             <div className="sr-opt-popup__header">
-              <span className="sr-label">Scan Options</span>
+              <span className="sr-label">Scan Mode</span>
               <button
                 className="sr-modal__close"
                 onClick={() => setShowOptions(false)}
@@ -170,14 +172,10 @@ export function ScanRequestRow({
               </button>
             </div>
             <div className="sr-opt-popup__body">
-              {options.map((opt) => (
-                <div key={opt} className="sr-opt-popup__row">
-                  <span className="sr-opt-popup__flag">{opt}</span>
-                  <span className="sr-opt-popup__desc">
-                    {getScanOptionDescription(opt)}
-                  </span>
-                </div>
-              ))}
+              <div className="sr-opt-popup__row">
+                <span className="sr-opt-popup__flag">{scanModeInfo.label}</span>
+                <span className="sr-opt-popup__desc">{scanModeInfo.description}</span>
+              </div>
             </div>
           </div>
         </div>
