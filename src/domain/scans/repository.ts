@@ -25,5 +25,6 @@ export interface ScanRepository {
     scan: Omit<ScanEntity, "id" | "createdAt" | "updatedAt">,
   ): Promise<ScanEntity>;
   rescan(params: RescanParams): Promise<void>;
+  retry(id: string): Promise<void>;
   getById(id: string): Promise<ScanEntity | null>;
 }

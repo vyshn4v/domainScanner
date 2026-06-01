@@ -162,25 +162,25 @@ export function Navbar() {
                   Profile
                 </Link>
                 <Link
+                  to="/billing"
+                  className="navbar-menu-item"
+                  onClick={closeProfileMenu}
+                >
+                  Plan & Billing
+                </Link>
+                <Link
                   to="/"
                   className="navbar-menu-item"
                   onClick={closeProfileMenu}
                 >
-                  Scan Requests
+                  Port Assessment
                 </Link>
                 <Link
                   to="/scan/search"
                   className="navbar-menu-item"
                   onClick={closeProfileMenu}
                 >
-                  Domain Scanner
-                </Link>
-                <Link
-                  to="/?new=1"
-                  className="navbar-menu-item"
-                  onClick={closeProfileMenu}
-                >
-                  Port Assessment
+                  Domain Lookup
                 </Link>
                 <button
                   type="button"
