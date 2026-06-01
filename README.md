@@ -7,6 +7,28 @@ Currently, two official plugins are available:
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
 - [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
+## Architecture
+
+The project strictly follows **Clean Architecture** principles to separate concerns, ensuring scalability and maintainability.
+
+### High-Level Design (HLD)
+The application is structured into the following layers:
+- **Presentation**: UI layouts, React components, Pages, and Routers.
+- **Application**: State management and Use Case orchestrators (e.g., `AuthContext`).
+- **Domain**: Core business entities and abstract Repository interfaces.
+- **Infrastructure**: External communication implementations (HTTP services for fetching data).
+- **Core**: Shared configurations like API interceptors (`axiosInstance`).
+
+All API requests intercept and attach the active user's session data (`id` and `useremail`) and handle global `401` and `403` redirects automatically.
+
+### Low-Level Design (LLD)
+The `src/` directory is logically separated:
+- `src/core`: API client configs, intercepts, etc.
+- `src/domain`: Types and interfaces.
+- `src/infrastructure/http`: Services like `scanHttpService` and `planHttpService` utilizing Axios.
+- `src/application/auth`: Session management and `AuthProvider`.
+- `src/presentation`: Includes `pages/`, `components/`, and `layouts/`.
+
 ## React Compiler
 
 The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
