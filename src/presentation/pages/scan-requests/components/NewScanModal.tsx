@@ -30,6 +30,11 @@ export function NewScanModal({ onClose, onSubmit }: NewScanModalProps) {
 
   const [loading, setLoading] = useState(false);
 
+  const domainRegex = /^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$/i;
+  const hasInput = target.length > 0;
+  const isValidDomain = target === "localhost" || domainRegex.test(target);
+  const showInvalidDomainError = hasInput && !isValidDomain;
+
   const submit = async () => {
     let clean = target.trim().toLowerCase();
 
@@ -40,14 +45,12 @@ export function NewScanModal({ onClose, onSubmit }: NewScanModalProps) {
     // Remove paths or trailing slashes
     clean = clean.split("/")[0];
 
-    const domainRegex = /^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$/i;
-
-    if (!clean) {
+    if (!hasInput) {
       setError("Target domain is required");
       return;
     }
 
-    if (clean !== "localhost" && !domainRegex.test(clean)) {
+    if (!isValidDomain) {
       setError("Please enter a valid domain name");
       return;
     }
@@ -144,10 +147,14 @@ export function NewScanModal({ onClose, onSubmit }: NewScanModalProps) {
                 if (val.includes("/")) val = val.split("/")[0];
                 
                 setTarget(val);
-                setError("");
+                if (error === "Target domain is required" || error === "Please enter a valid domain name") {
+                  setError("");
+                }
               }}
             />
-            {error && error !== "LIMIT_EXCEEDED" ? (
+            {showInvalidDomainError ? (
+              <span className="sr-error-msg">Please enter a valid domain name</span>
+            ) : error && error !== "LIMIT_EXCEEDED" ? (
               <span className="sr-error-msg">{error}</span>
             ) : (
               <span className="sr-info-text" style={{ fontSize: "0.8rem", color: "var(--text-secondary, #888)", marginTop: "6px", display: "block" }}>
@@ -196,7 +203,7 @@ export function NewScanModal({ onClose, onSubmit }: NewScanModalProps) {
           <Button variant="ghost" size="sm" onClick={onClose} disabled={loading}>
             Cancel
           </Button>
-          <Button variant="primary" size="sm" onClick={submit} disabled={loading}>
+          <Button variant="primary" size="sm" onClick={submit} disabled={loading || !hasInput || showInvalidDomainError}>
             {loading ? "Submitting..." : "Submit Request →"}
           </Button>
         </div>
