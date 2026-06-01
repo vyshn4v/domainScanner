@@ -7,6 +7,8 @@ import type {
 } from "../../domain/scans/repository";
 import api from "../../core/api/axiosInstance";
 
+export type RescanWithMode = RescanParams & { scanMode?: string };
+
 export type DashboardScanStats = {
   totalScans: number;
   byStatus: { status: string; count: number }[];
@@ -40,13 +42,13 @@ export class ScanHttpService implements ScanRepository {
     return response.data;
   }
 
-  async rescan(params: RescanParams): Promise<void> {
+  async rescan(params: RescanWithMode): Promise<void> {
     const apiType = params.scanType.toLowerCase().includes("web")
       ? "web"
       : "port";
     await api.post(`/scan/${apiType}/${encodeURIComponent(params.domain)}`, {
       domain: params.domain,
-      scanOptions: params.scanOptions || [],
+      scanMode: params.scanMode || "standard",
     });
   }
 

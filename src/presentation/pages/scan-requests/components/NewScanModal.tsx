@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "../../../components/ui/Button";
 import type { ScanRequest } from "../types";
-import { SCAN_OPTIONS_BY_TYPE } from "../../../../core/constants/scanOptionsConfig";
+import { SCAN_MODES_BY_TYPE, DEFAULT_SCAN_MODE } from "../../../../core/constants/scanOptionsConfig";
 import { ScanHttpService } from "../../../../infrastructure/http/scanHttpService";
 
 const scanService = new ScanHttpService();
@@ -19,15 +19,8 @@ type NewScanModalProps = {
 export function NewScanModal({ onClose, onSubmit }: NewScanModalProps) {
   const [target, setTarget] = useState("");
   const [type, setType] = useState("Vulnerability Scan");
-  const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
+  const [scanMode, setScanMode] = useState(DEFAULT_SCAN_MODE);
   const [error, setError] = useState("");
-
-  const toggleOption = (flag: string) => {
-    setSelectedOptions((prev) =>
-      prev.includes(flag) ? prev.filter((f) => f !== flag) : [...prev, flag],
-    );
-  };
-
   const [loading, setLoading] = useState(false);
 
   const domainRegex = /^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$/i;
@@ -35,25 +28,16 @@ export function NewScanModal({ onClose, onSubmit }: NewScanModalProps) {
   const isValidDomain = target === "localhost" || domainRegex.test(target);
   const showInvalidDomainError = hasInput && !isValidDomain;
 
+  const modes = SCAN_MODES_BY_TYPE[type] || [];
+
   const submit = async () => {
     let clean = target.trim().toLowerCase();
-
-    // Remove http:// or https://
     if (clean.startsWith("http://")) clean = clean.substring(7);
     if (clean.startsWith("https://")) clean = clean.substring(8);
-
-    // Remove paths or trailing slashes
     clean = clean.split("/")[0];
 
-    if (!hasInput) {
-      setError("Target domain is required");
-      return;
-    }
-
-    if (!isValidDomain) {
-      setError("Please enter a valid domain name");
-      return;
-    }
+    if (!hasInput) { setError("Target domain is required"); return; }
+    if (!isValidDomain) { setError("Please enter a valid domain name"); return; }
 
     setLoading(true);
     setError("");
@@ -62,13 +46,13 @@ export function NewScanModal({ onClose, onSubmit }: NewScanModalProps) {
       await scanService.rescan({
         domain: clean,
         scanType: type,
-        scanOptions: selectedOptions,
+        scanMode,
       });
 
       const now = new Date();
-      const pad = (n: number) => n.toString().padStart(2, '0');
+      const pad = (n: number) => n.toString().padStart(2, "0");
       const timestamp = `${pad(now.getMonth() + 1)}${now.getFullYear()}${pad(now.getDate())}${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
-      
+
       onSubmit({
         id: 0,
         scanId: `SCN-${timestamp}${Math.floor(1000 + Math.random() * 9000)}`,
@@ -78,7 +62,6 @@ export function NewScanModal({ onClose, onSubmit }: NewScanModalProps) {
         status: "queued",
         type,
         scanType: type,
-        scanOptions: selectedOptions.length > 0 ? selectedOptions : undefined,
       });
       onClose();
     } catch (err: unknown) {
@@ -86,7 +69,6 @@ export function NewScanModal({ onClose, onSubmit }: NewScanModalProps) {
       const message = err instanceof Error ? err.message : "Failed to schedule scan";
       const apiMessage = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
       const status = (err as { response?: { status?: number } })?.response?.status;
-      
       if (status === 429) {
         setError("LIMIT_EXCEEDED");
       } else {
@@ -108,9 +90,7 @@ export function NewScanModal({ onClose, onSubmit }: NewScanModalProps) {
             <p className="sr-eyebrow">New Request</p>
             <h2 className="sr-modal__title">Schedule a Scan</h2>
           </div>
-          <button className="sr-modal__close" onClick={onClose}>
-            ✕
-          </button>
+          <button className="sr-modal__close" onClick={onClose}>✕</button>
         </div>
 
         <div className="sr-modal__body">
@@ -132,6 +112,7 @@ export function NewScanModal({ onClose, onSubmit }: NewScanModalProps) {
             </div>
           )}
 
+          {/* TARGET */}
           <div className="sr-field">
             <label className="sr-label">
               Target <span className="sr-required">*</span>
@@ -145,7 +126,6 @@ export function NewScanModal({ onClose, onSubmit }: NewScanModalProps) {
                 if (val.startsWith("http://")) val = val.substring(7);
                 if (val.startsWith("https://")) val = val.substring(8);
                 if (val.includes("/")) val = val.split("/")[0];
-                
                 setTarget(val);
                 if (error === "Target domain is required" || error === "Please enter a valid domain name") {
                   setError("");
@@ -163,6 +143,7 @@ export function NewScanModal({ onClose, onSubmit }: NewScanModalProps) {
             )}
           </div>
 
+          {/* SCAN TYPE */}
           <div className="sr-field">
             <label className="sr-label">Scan Type</label>
             <select
@@ -170,33 +151,47 @@ export function NewScanModal({ onClose, onSubmit }: NewScanModalProps) {
               value={type}
               onChange={(e) => {
                 setType(e.target.value);
-                setSelectedOptions([]);
+                setScanMode(DEFAULT_SCAN_MODE);
               }}
             >
               {SCAN_TYPES.map((item) => (
-                <option key={item} value={item}>
-                  {item}
-                </option>
+                <option key={item} value={item}>{item}</option>
               ))}
             </select>
           </div>
 
-          <div className="sr-field">
-            <label className="sr-label">Scan Options</label>
-            <div className="sr-opt-grid">
-              {(SCAN_OPTIONS_BY_TYPE[type] || []).map((opt) => (
-                <label key={opt.flag} className="sr-opt-checkbox">
-                  <input
-                    type="checkbox"
-                    checked={selectedOptions.includes(opt.flag)}
-                    onChange={() => toggleOption(opt.flag)}
-                  />
-                  <span className="sr-opt-flag">{opt.flag}</span>
-                  <span className="sr-opt-desc">{opt.description}</span>
-                </label>
-              ))}
+          {/* SCAN MODE */}
+          {modes.length > 0 && (
+            <div className="sr-field">
+              <label className="sr-label">Scan Mode</label>
+              <div className="sr-mode-grid">
+                {modes.map((mode) => (
+                  <label
+                    key={mode.value}
+                    className={`sr-mode-card${scanMode === mode.value ? " sr-mode-card--active" : ""}`}
+                  >
+                    <input
+                      type="radio"
+                      name="scanMode"
+                      value={mode.value}
+                      checked={scanMode === mode.value}
+                      onChange={() => setScanMode(mode.value)}
+                      style={{ display: "none" }}
+                    />
+                    <div className="sr-mode-card__header">
+                      <span className="sr-mode-card__label">{mode.label}</span>
+                      {mode.badge && (
+                        <span className={`sr-mode-badge${mode.badge === "Slow" ? " sr-mode-badge--slow" : " sr-mode-badge--default"}`}>
+                          {mode.badge}
+                        </span>
+                      )}
+                    </div>
+                    <p className="sr-mode-card__desc">{mode.description}</p>
+                  </label>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         <div className="sr-modal__footer">
