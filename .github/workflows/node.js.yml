@@ -39,6 +39,4 @@ jobs:
           ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
       - name: Upload dist
         run: |
-          scp -i ~/.ssh/id_rsa -r \
-                dist/* \ 
-                ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/home/ubuntu/domainScanner/
+          scp -i ~/.ssh/id_rsa -r dist/* ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/home/ubuntu/domainScanner/
